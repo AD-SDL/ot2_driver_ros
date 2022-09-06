@@ -100,4 +100,4 @@ RUN source $ROS_ROOT/setup.bash && colcon build --symlink-install && source $ROS
 COPY ros_entrypoint.sh /
 WORKDIR /root/config/temp/_compiled_protocols
 ENTRYPOINT [ "/ros_entrypoint.sh" ]
-CMD ros2 run ot2_module_client ot2Node
+CMD ["ros2", "run", "ot2_module_client", "ot2Node"]

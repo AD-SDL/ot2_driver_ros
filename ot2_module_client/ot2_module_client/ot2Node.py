@@ -246,8 +246,11 @@ def main(args=None):
         rclpy.init(args=args)  # initialize Ros2 communication
         
         node = ot2Node(ROBOT_IP=ip, NODE_NAME=node_name)
-        
-        rclpy.spin(node)    # keep Ros2 communication open for action node
+        try:
+            rclpy.spin(node)    # keep Ros2 communication open for action node
+
+        except KeyboardInterrupt:
+            pass
     
     else:
         print("The robot_ip environment variable has not been specified.")
@@ -257,4 +260,3 @@ def main(args=None):
 if __name__ == "__main__":
 
     main()
-
