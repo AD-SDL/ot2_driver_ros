@@ -1,0 +1,3 @@
+[submodule "ot2_driver"]
+	path = ot2_driver
+	url = https://github.com/AD-SDL/ot2_driver.git
