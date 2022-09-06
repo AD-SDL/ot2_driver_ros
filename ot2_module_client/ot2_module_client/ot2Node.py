@@ -176,15 +176,19 @@ class ot2Node(Node):
         ## TODO must check for /IDLE/AVAILABLE or COMPLETED state
 
         response = False
+        self.state = "BUSY"
+        self.stateCallback()
+
 
         try:
             self.protocol_file_path, self.resource_file_path = self.ot2.compile_protocol(protocol_path)     
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
             resp = self.ot2.execute(self.run_id)
     
-            if resp["data"]["actionType"] == "play":  ## Response to a successful initiation
-                self.state = "BUSY" 
-                self.poll_OT2_until_run_completion()
+            if resp["data"]["status"] == "succeeded":
+                self.state = "COMPLETED"
+                self.stateCallback()
+                # self.poll_OT2_until_run_completion()
                 response = True
 
             self.state  = "READY"
