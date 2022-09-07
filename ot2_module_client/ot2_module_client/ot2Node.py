@@ -39,6 +39,7 @@ class ot2Node(Node):
             'actions':
             {
                 'execute': "config : %s", ## takes in the yaml content as second string arg
+                'run_protocol': "config_path: %s",  ## Temp inclusion
             }
         }
 
@@ -111,6 +112,16 @@ class ot2Node(Node):
             else:
                 self.get_logger().error("Required 'config' was not specified in request.vars")
 
+        ## Temp inclusion
+        elif "run_protocol" == self.manager_command:
+            protocol_config_path = self.manager_vars.get("config_path", None)
+
+            if protocol_config_path:
+                
+                response.action_response = self.execute(protocol_config_path)
+
+            else:
+                self.get_logger().error("Required 'config_path' was not specified in request.vars")
 
         return response
 
