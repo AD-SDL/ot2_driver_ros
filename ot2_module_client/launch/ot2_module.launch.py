@@ -8,6 +8,7 @@ def generate_launch_description():
             namespace='ot2_module',
             executable='ot2Node',
             name='ot2Node',
-            output="screen"
+            output='screen',
+            emulate_tty = True,
         ),
     ])
