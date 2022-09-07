@@ -11,7 +11,7 @@ class ServiceTestNode(Node):
 
     def run(self):
         
-        test_client = self.create_client(WeiActions, 'ot2Node/actions')
+        test_client = self.create_client(WeiActions, '/ot2_module/ot2Node/actions')
 
         while not test_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('ot2Node/actions service not available, waiting again...')

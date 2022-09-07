@@ -8,7 +8,7 @@ equipment:
   - name: opentrons_96_tiprack_300ul
     location: "8"
   - name: p300_multi_gen2
-    mount: left
+    mount: right
 commands:
   - name: example command
     source: source:A1
