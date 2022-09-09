@@ -46,12 +46,12 @@ To run the docker container as intended,
 
 1. Run the docker container, expose all the host's port to the container, and specify the required robot_ip and optional robot_name environment variables:
 
-   `docker run --net=host -it -e robot_ip=<IP_ADDRESS> [robot_name=<NAMESPACE>] <IMAGE_NAME>`
+   `docker run --net=host -it -e robot_ip=<IP_ADDRESS> [-e robot_name=<NAMESPACE>] <IMAGE_NAME>`
 
 
    	Specifying a `robot_name=<NAMESPACE>`, overrides the default "ot2_module" namespace.
 
-   	eg `docker run --net=host -it -e robot_ip=192.168.50.197 robot_name=ot2_alpha ot2_module_client`
+   	eg `docker run --net=host -it -e robot_ip=192.168.50.197 -e robot_name=ot2_alpha ot2_module_client`
 
 
 

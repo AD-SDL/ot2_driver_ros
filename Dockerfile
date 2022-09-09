@@ -37,9 +37,11 @@ RUN mkdir -p /root/config/temp/
 ## into /root directory of image 
 ## Commented example below downloads ot2_driver from repository root then
 ## installs it, including python dependencies using pip3 on the 
-## requirements.txt dependency list. Also upgrades numpy to fix nested dependency
+## requirements.txt dependency list. 
+## Also upgrades numpy to fix nested dependency
 ##
 ## Uncomment and replicate as needed
+## Alternatively install python packages with `python3 setup.py install`
 
 WORKDIR /root
 COPY ot2_driver/ ot2_driver/
@@ -57,7 +59,7 @@ RUN pip3 install -r ot2_driver/requirements.txt \
 ## Uncomment and ammend as needed
 
 WORKDIR /root
-COPY resources/ .
+COPY docker/resources/ .
 
 
 
@@ -75,7 +77,7 @@ COPY resources/ .
 
 WORKDIR $ROS_WS/src
 COPY ot2_module_client ot2_module_client
-COPY repos repos
+COPY docker/repos repos
 RUN vcs import < repos
 WORKDIR $ROS_WS
 SHELL ["/bin/bash", "-c"]
@@ -97,7 +99,7 @@ RUN source $ROS_ROOT/setup.bash && colcon build --symlink-install && source $ROS
 ##
 ##
 
-COPY ros_entrypoint.sh /
+COPY docker/ros_entrypoint.sh /
 WORKDIR /root/config/temp/_compiled_protocols
 ENTRYPOINT [ "/ros_entrypoint.sh" ]
 CMD ["ros2", "launch", "ot2_module_client", "ot2_module.launch.py"]
