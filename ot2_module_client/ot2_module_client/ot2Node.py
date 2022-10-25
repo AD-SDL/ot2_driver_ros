@@ -1,7 +1,11 @@
 #! /usr/bin/env python3
 """OT2 Node"""
 
+import yaml
 from typing import List, Tuple
+from pathlib import Path
+from datetime import datetime 
+
 
 import rclpy  
 from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver
@@ -47,7 +51,7 @@ class ot2Node(Node):
         
         ## Creating state Msg as a instance variable
         self.stateMsg = String()    
-        self.state = "UNKNOWN"        ## READY?
+        self.state = "READY"        ## If we get here without error, the client is initialized
         self.stateMsg.data = "State %s" % self.state
 
         # Publisher for ot2 state
@@ -59,7 +63,6 @@ class ot2Node(Node):
         # Control and discovery services
         self.actionSrv = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
         self.descriptionSrv = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
-
 
 
     def descriptionCallback(self, request, response):
@@ -99,10 +102,11 @@ class ot2Node(Node):
         self.manager_command = request.action_handle        
         self.manager_vars = eval(request.vars) 
 
+        self.get_logger().info(f"In action callback, command: {self.manager_command}")
+
         if "execute" == self.manager_command:
             
             protocol_config = self.manager_vars.get("config", None) 
-
             if protocol_config:
                 config_file_path = self.download_config(protocol_config)
                 response.action_response = self.execute(config_file_path)
@@ -111,12 +115,19 @@ class ot2Node(Node):
 
         ## Temp inclusion
         elif "run_protocol" == self.manager_command:
-            protocol_config_path = self.manager_vars.get("config_path", None)
 
-            if protocol_config_path:
-                response.action_response = self.execute(protocol_config_path)
+            # protocol_config = self.manager_vars.get("config", None)
+            protocol_config = self.manager_vars.get("config_path", None) 
+     
+            if protocol_config:
+
+                config_file_path = self.download_config(protocol_config)
+
+                response.action_response = self.execute(config_file_path)
+
             else:
-                self.get_logger().error("Required 'config_path' was not specified in request.vars")
+                self.get_logger().error("Required 'config' was not specified in request.vars")
+
         return response
 
 
@@ -143,15 +154,17 @@ class ot2Node(Node):
             Absolute path to generated yaml file
         """
 
-        config_dir_path = '/root/config/temp'
-        config_file_path = config_dir_path + "/pc_document.yaml"
+        # config_dir_path = '/root/config/temp'
+        # config_file_path = config_dir_path + "/pc_document.yaml"
         
-        if not os.path.exists(config_dir_path):
-            os.mkdir(config_dir_path)
-        self.get_logger().info("Writing protocol config to {} ...".format(config_file_path))
+        config_dir_path = Path.home().resolve() / "ot2_temp"
+        config_dir_path.mkdir(exist_ok=True, parents=True)
+        config_file_path = config_dir_path / f"protocol-{datetime.ow().strftime('%Y%m%d-%H%m%s')}.yaml"
+        
+        self.get_logger().info("Writing protocol config to {} ...".format(str(config_file_path)))
         
         with open(config_file_path,'w',encoding = "utf-8") as pc_file:
-            pc_file.write(protocol_config) 
+            yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
 
         return config_file_path
 
@@ -212,6 +225,9 @@ class ot2Node(Node):
                 variable, robot_ip, matches the ip of the connected robot \
                 on the shared LAN."
                 self.get_logger().error(response_msg)
+
+            response_msg = f'Error: {e}'
+            self.get_logger().error(response_msg)
             
             rclpy.shutdown()  ## TODO: Could alternatively indent into the if block. 
                               ## TODO: Changed to as is to forestall any unexpected exceptions
