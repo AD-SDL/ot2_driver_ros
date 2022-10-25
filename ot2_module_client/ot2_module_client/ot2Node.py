@@ -57,8 +57,8 @@ class ot2Node(Node):
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback)   
 
         # Control and discovery services
-        self.actionSrv = self.create_service(WeiActions, NODE_NAME + "/actions", self.actionCallback)
-        self.descriptionSrv = self.create_service(WeiDescription, NODE_NAME + "/description", self.descriptionCallback)
+        self.actionSrv = self.create_service(WeiActions, NODE_NAME + "/action_handler", self.actionCallback)
+        self.descriptionSrv = self.create_service(WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback)
 
 
 
@@ -104,11 +104,8 @@ class ot2Node(Node):
             protocol_config = self.manager_vars.get("config", None) 
 
             if protocol_config:
-
                 config_file_path = self.download_config(protocol_config)
-
                 response.action_response = self.execute(config_file_path)
-
             else:
                 self.get_logger().error("Required 'config' was not specified in request.vars")
 
@@ -117,26 +114,19 @@ class ot2Node(Node):
             protocol_config_path = self.manager_vars.get("config_path", None)
 
             if protocol_config_path:
-                
                 response.action_response = self.execute(protocol_config_path)
-
             else:
                 self.get_logger().error("Required 'config_path' was not specified in request.vars")
-
         return response
 
 
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
-
         self.stateMsg.data = "State %s" % self.state
-
         self.statePub.publish(self.stateMsg)
-
         self.get_logger().info('Publishing: "%s"' % self.stateMsg.data)
 
-        
 
     def download_config(self, protocol_config: str):
         """ 
@@ -257,13 +247,10 @@ def main(args=None):
     if ip:
     
         node_name = "ot2Node"   # Node name for peeler   
-        
         rclpy.init(args=args)  # initialize Ros2 communication
-        
         node = ot2Node(ROBOT_IP=ip, NODE_NAME=node_name)
         try:
             rclpy.spin(node)    # keep Ros2 communication open for action node
-
         except KeyboardInterrupt:
             pass
     
