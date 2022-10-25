@@ -159,7 +159,7 @@ class ot2Node(Node):
         
         config_dir_path = Path.home().resolve() / "ot2_temp"
         config_dir_path.mkdir(exist_ok=True, parents=True)
-        config_file_path = config_dir_path / f"protocol-{datetime.ow().strftime('%Y%m%d-%H%m%s')}.yaml"
+        config_file_path = config_dir_path / f"protocol-{datetime.now().strftime('%Y%m%d-%H%m%s')}.yaml"
         
         self.get_logger().info("Writing protocol config to {} ...".format(str(config_file_path)))
         
