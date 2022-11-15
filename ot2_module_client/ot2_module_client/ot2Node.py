@@ -25,7 +25,7 @@ class ot2Node(Node):
     """
 
 
-    def __init__(self, ROBOT_IP = "", NODE_NAME = "ot2Node"):
+    def __init__(self, NODE_NAME, ROBOT_IP):
         """Setup OT2 node"""
 
         super().__init__(NODE_NAME)
@@ -243,10 +243,9 @@ class ot2Node(Node):
 def main(args=None): 
 
     ip = os.getenv("robot_ip", None)
+    node_name = os.getenv("robot_name", None)
 
     if ip:
-    
-        node_name = "ot2Node"   # Node name for peeler   
         rclpy.init(args=args)  # initialize Ros2 communication
         node = ot2Node(ROBOT_IP=ip, NODE_NAME=node_name)
         try:

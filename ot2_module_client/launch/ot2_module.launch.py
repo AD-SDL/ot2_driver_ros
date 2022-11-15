@@ -13,7 +13,8 @@ def generate_launch_description():
     ot2 = Node(
             package='ot2_module_client',
             executable='ot2Node',
-            name='ot2Node',
+            namespace = 'std_ns',
+            name=getenv('robot_name')
             output='screen',
             emulate_tty = True,
         )
