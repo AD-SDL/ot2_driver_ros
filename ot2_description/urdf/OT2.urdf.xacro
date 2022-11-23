@@ -85,7 +85,6 @@
     </collision>
   </link>
 
-
   <link name="${prefix}OT2_betha">
     <visual>
       <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
