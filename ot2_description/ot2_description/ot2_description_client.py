@@ -15,12 +15,12 @@ from std_msgs.msg import Header
 
 from pf400_driver.pf400_driver import PF400
 
-class PF400DescriptionClient(Node):
+class OT2DescriptionClient(Node):
 
-    def __init__(self, NODE_NAME = 'PF400DescriptionNode'):
+    def __init__(self, NODE_NAME = 'OT2DescriptionNode'):
         super().__init__(NODE_NAME)
 
-        self.pf400 = PF400("192.168.50.50",10000)
+        # self.ot2 = 
 
         timer_period = 0.1  # seconds
 
@@ -49,37 +49,37 @@ class PF400DescriptionClient(Node):
     def joint_state_publisher_callback(self):
         
         # self.get_logger().info("BUGG")
-        joint_states = self.pf400.refresh_joint_state()
-        pf400_joint_msg = JointState()
-        pf400_joint_msg.header = Header()
-        pf400_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        pf400_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
-        pf400_joint_msg.position = joint_states
+        joint_states = self.ot2.refresh_joint_state()
+        ot2_joint_msg = JointState()
+        ot2_joint_msg.header = Header()
+        ot2_joint_msg.header.stamp = self.get_clock().now().to_msg()
+        ot2_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
+        ot2_joint_msg.position = joint_states
         # print(joint_states)
 
-        # pf400_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
-        pf400_joint_msg.velocity = []
-        pf400_joint_msg.effort = []
+        # ot2_joint_msg.position = [0.01, -1.34, 1.86, -3.03, 0.05, 0.05, 0.91]
+        ot2_joint_msg.velocity = []
+        ot2_joint_msg.effort = []
 
-        self.joint_publisher.publish(pf400_joint_msg)
+        self.joint_publisher.publish(ot2_joint_msg)
         self.get_logger().info('Publishing joint states: "%s"' % joint_states)
 
 
 def main(args=None):
     rclpy.init(args=args)
     try:
-        pf400_joint_state_publisher = PF400DescriptionClient()
+        ot2_joint_state_publisher = OT2DescriptionClient()
         executor = MultiThreadedExecutor()
-        executor.add_node(pf400_joint_state_publisher)
+        executor.add_node(ot2_joint_state_publisher)
 
         try:
-            pf400_joint_state_publisher.get_logger().info('Beginning client, shut down with CTRL-C')
+            ot2_joint_state_publisher.get_logger().info('Beginning client, shut down with CTRL-C')
             executor.spin()
         except KeyboardInterrupt:
-            pf400_joint_state_publisher.get_logger().info('Keyboard interrupt, shutting down.\n')
+            ot2_joint_state_publisher.get_logger().info('Keyboard interrupt, shutting down.\n')
         finally:
             executor.shutdown()
-            pf400_joint_state_publisher.destroy_node()
+            ot2_joint_state_publisher.destroy_node()
     finally:
         rclpy.shutdown()
 
