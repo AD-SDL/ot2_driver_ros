@@ -77,11 +77,19 @@ def generate_launch_description():
     output='screen',
     arguments=['-d', rviz_config_file])
 
-  # Start RealHarware Joint State Publisher Client
-  start_ot2_description_client = Node(
+  # Start Real Harware Joint State Publisher Client
+  start_ot2_alpha_description_client = Node(
     condition=UnlessCondition(fake_hardware),
     package = "ot2_description",
-    executable = 'ot2_description_client',
+    executable = 'ot2_alpha_description_client',
+    name = 'OT2DescriptionNode',
+    output = 'screen'
+  )
+  # Start Real Harware Joint State Publisher Client
+  start_ot2_betha_description_client = Node(
+    condition=UnlessCondition(fake_hardware),
+    package = "ot2_description",
+    executable = 'ot2_betha_description_client',
     name = 'OT2DescriptionNode',
     output = 'screen'
   )
@@ -101,6 +109,6 @@ def generate_launch_description():
   ld.add_action(start_joint_state_publisher_fake_hardware_node)
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
-  ld.add_action(start_ot2_description_client)
+  ld.add_action(start_ot2_alpha_description_client)
  
   return ld
