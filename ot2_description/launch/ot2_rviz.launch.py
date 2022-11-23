@@ -82,7 +82,7 @@ def generate_launch_description():
     condition=UnlessCondition(fake_hardware),
     package = "ot2_description",
     executable = 'ot2_alpha_description_client',
-    name = 'OT2DescriptionNode',
+    name = 'OT2AlphaDescriptionNode',
     output = 'screen'
   )
   # Start Real Harware Joint State Publisher Client
@@ -90,7 +90,7 @@ def generate_launch_description():
     condition=UnlessCondition(fake_hardware),
     package = "ot2_description",
     executable = 'ot2_betha_description_client',
-    name = 'OT2DescriptionNode',
+    name = 'OT2BethaDescriptionNode',
     output = 'screen'
   )
    
@@ -110,5 +110,7 @@ def generate_launch_description():
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
   ld.add_action(start_ot2_alpha_description_client)
+  ld.add_action(start_ot2_betha_description_client)
+
  
   return ld
