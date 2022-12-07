@@ -14,6 +14,7 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
 # from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS WHEN IT IS READY
+
 class OT2DescriptionClient(Node):
 
     def __init__(self, NODE_NAME = 'OT2DescriptionNode'):
@@ -49,7 +50,7 @@ class OT2DescriptionClient(Node):
         
         # self.get_logger().info("BUGG")
         # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY
-        joint_states = [0,0,0,0,0,0,0,0]
+        joint_states = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         ot2_joint_msg = JointState()
         ot2_joint_msg.header = Header()
         ot2_joint_msg.header.stamp = self.get_clock().now().to_msg()
