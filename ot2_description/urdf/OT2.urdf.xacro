@@ -9,13 +9,13 @@
     <visual>
       <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_base.stl" scale="1 1 1"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_base.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
     </collision>
@@ -25,13 +25,13 @@
     <visual>
       <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_rail.stl" scale="1 1 1"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_rail.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
     </collision>
@@ -41,13 +41,13 @@
     <visual>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
     </collision>
@@ -57,13 +57,13 @@
     <visual>
       <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://ot2_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://ot2_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
     </collision>
@@ -73,13 +73,13 @@
     <visual>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
     </collision>
@@ -89,13 +89,13 @@
     <visual>
       <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_base.stl" scale="1 1 1"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_base.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.36 0.94 1.042" rpy="0 0 0"/>
     </collision>
@@ -105,13 +105,13 @@
     <visual>
       <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_rail.stl" scale="1 1 1"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_rail.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_rail.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.36 1.15 1.042" rpy="0 0 0"/>
     </collision>
@@ -121,13 +121,13 @@
     <visual>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_pipette_base.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
     </collision>
@@ -137,13 +137,13 @@
     <visual>
       <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://ot2_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://ot2_description/meshes/pipette.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.79 0.76 1.27" rpy="1.5708 0 1.5708"/>
     </collision>
@@ -153,20 +153,20 @@
     <visual>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://pf400_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
+        <mesh filename="package://ot2_description/meshes/OT2_8ch_pipette.stl" scale="1 1 1"/>
       </geometry>
       <origin xyz="0.51 1.15 1.042" rpy="0 0 0"/>
     </collision>
   </link>
 
   <!-- Joints -->
-  <joint name="OT2_1_Pipette_Joint1_alpha" type="fixed">
+  <joint name="OT2_1_Pipette_Joint1_alpha" type="prismatic">
     <parent link="${prefix}OT2_alpha"/>
     <child link="${prefix}OT2_pipette_rail_alpha"/>
     <axis xyz="0 -1 0"/>
@@ -174,7 +174,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint2_alpha" type="fixed">
+  <joint name="OT2_1_Pipette_Joint2_alpha" type="prismatic">
     <parent link="${prefix}OT2_pipette_rail_alpha"/>
     <child link="${prefix}OT2_pipette_base_alpha"/>
     <axis xyz="-1 0 0"/>
@@ -182,7 +182,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Single_Pipette_alpha" type="fixed">
+  <joint name="OT2_1_Single_Pipette_alpha" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_alpha"/>
     <child link="${prefix}OT2_single_pipette_alpha"/>
     <axis xyz="0 0 -1"/>
@@ -190,7 +190,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_8_Channel_Pipette_alpha" type="fixed">
+  <joint name="OT2_1_8_Channel_Pipette_alpha" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_alpha"/>
     <child link="${prefix}OT2_8_channel_pipette_alpha"/>
     <axis xyz="0 0 -1"/>
@@ -198,7 +198,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint1_betha" type="fixed">
+  <joint name="OT2_1_Pipette_Joint1_betha" type="prismatic">
     <parent link="${prefix}OT2_betha"/>
     <child link="${prefix}OT2_pipette_rail_betha"/>
     <axis xyz="0 -1 0"/>
@@ -206,7 +206,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint2_betha" type="fixed">
+  <joint name="OT2_1_Pipette_Joint2_betha" type="prismatic">
     <parent link="${prefix}OT2_pipette_rail_betha"/>
     <child link="${prefix}OT2_pipette_base_betha"/>
     <axis xyz="-1 0 0"/>
@@ -214,7 +214,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Single_Pipette_betha" type="fixed">
+  <joint name="OT2_1_Single_Pipette_betha" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_betha"/>
     <child link="${prefix}OT2_single_pipette_betha"/>
     <axis xyz="0 0 -1"/>
@@ -222,7 +222,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_8_Channel_Pipette_betha" type="fixed">
+  <joint name="OT2_1_8_Channel_Pipette_betha" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_betha"/>
     <child link="${prefix}OT2_8_channel_pipette_betha"/>
     <axis xyz="0 0 -1"/>
