@@ -13,14 +13,13 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-from pf400_driver.pf400_driver import PF400
-
+# from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS WHEN IT IS READY
 class OT2DescriptionClient(Node):
 
     def __init__(self, NODE_NAME = 'OT2DescriptionNode'):
         super().__init__(NODE_NAME)
 
-        # self.ot2 = 
+        # self.ot2 = OT2_Driver(OT2_Config(ip=ROBOT_IP))  #TODO: USE THIS WHEN IT IS READY
 
         timer_period = 0.1  # seconds
 
@@ -37,7 +36,7 @@ class OT2DescriptionClient(Node):
     
     def stateCallback(self):
         '''
-        Publishes the pf400_description state to the 'state' topic. 
+        Publishes the ot2_description state to the 'state' topic. 
         '''
         msg = String()
         msg.data = 'State: %s' % self.state
@@ -49,11 +48,12 @@ class OT2DescriptionClient(Node):
     def joint_state_publisher_callback(self):
         
         # self.get_logger().info("BUGG")
-        joint_states = self.ot2.refresh_joint_state()
+        # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY
+        joint_states = [0,0,0,0,0,0,0,0]
         ot2_joint_msg = JointState()
         ot2_joint_msg.header = Header()
         ot2_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        ot2_joint_msg.name = ['J1', 'J2', 'J3', 'J4', 'J5','J5_mirror', 'J6']
+        ot2_joint_msg.name = ['OT2_1_Pipette_Joint1_alpha', 'OT2_1_Pipette_Joint2_alpha', 'OT2_1_Single_Pipette_alpha', 'OT2_1_8_Channel_Pipette_alpha', 'OT2_1_Pipette_Joint1_betha','OT2_1_Pipette_Joint2_betha', 'OT2_1_Single_Pipette_betha', 'OT2_1_8_Channel_Pipette_betha']
         ot2_joint_msg.position = joint_states
         # print(joint_states)
 
@@ -62,7 +62,7 @@ class OT2DescriptionClient(Node):
         ot2_joint_msg.effort = []
 
         self.joint_publisher.publish(ot2_joint_msg)
-        self.get_logger().info('Publishing joint states: "%s"' % joint_states)
+        self.get_logger().info('Publishing joint states: "%s"' % str(joint_states))
 
 
 def main(args=None):
