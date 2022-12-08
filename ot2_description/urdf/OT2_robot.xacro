@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot name="OT2_Robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Materials -->
+  <xacro:include filename="$(find ot2_description)/urdf/materials.xacro" />
+  
+  <!-- Module Carts -->
+  <xacro:include filename="$(find ot2_description)/urdf/module_carts.urdf.xacro" />
+  <xacro:Module_Carts prefix="module_carts/"/>
+
+  <!-- OT2 -->
+  <xacro:include filename="$(find ot2_description)/urdf/OT2.urdf.xacro" />
+  <xacro:OT2 prefix="ot2/"/>
+  
+
+  <joint name="OT2_alpha" type="fixed">
+    <parent link="module_carts/cart_8"/>
+    <child link="ot2/OT2_alpha"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+  <joint name="OT2_betha" type="fixed">
+    <parent link="module_carts/cart_7"/>
+    <child link="ot2/OT2_betha"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
+
+</robot>
