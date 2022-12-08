@@ -7,6 +7,8 @@ from launch.substitutions import LaunchConfiguration
 from launch.substitutions import TextSubstitution
 from launch_ros.actions import Node
 
+from os import getenv
+
 def generate_launch_description():
     ld = LaunchDescription()
 
@@ -14,7 +16,7 @@ def generate_launch_description():
             package='ot2_module_client',
             executable='ot2Node',
             namespace = 'std_ns',
-            name=getenv('robot_name')
+            name=getenv('robot_name'),
             output='screen',
             emulate_tty = True,
         )

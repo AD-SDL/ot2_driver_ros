@@ -5,6 +5,7 @@ import yaml
 from typing import List, Tuple
 from pathlib import Path
 from datetime import datetime 
+from copy import deepcopy 
 
 
 import rclpy  
@@ -104,39 +105,51 @@ class ot2Node(Node):
 
         self.get_logger().info(f"In action callback, command: {self.manager_command}")
 
-        if "execute" == self.manager_command:
+        # if "execute" == self.manager_command:
             
-            protocol_config = self.manager_vars.get("config", None) 
-            if protocol_config:
-                config_file_path = self.download_config(protocol_config)
-                response.action_response = self.execute(config_file_path)
-            else:
-                self.get_logger().error("Required 'config' was not specified in request.vars")
+        #     protocol_config = self.manager_vars.get("config", None) 
+        #     if protocol_config:
+        #         payload = self.manager_vars.get("payload", None)
+        #         self.get_logger().info(f"{self.manager_vars=}")
+        #         self.get_logger().info(f"ot2 {payload=}")
+        #         config_file_path = self.download_config(protocol_config)
+        #         response = self.execute(config_file_path, payload)
+        #     else:
+        #         self.get_logger().error("Required 'config' was not specified in request.vars")
 
-        ## Temp inclusion
-        elif "run_protocol" == self.manager_command:
+        ## Actual API
+        if "run_protocol" == self.manager_command:
 
             # protocol_config = self.manager_vars.get("config", None)
             protocol_config = self.manager_vars.get("config_path", None) 
-     
             if protocol_config:
-
-                config_file_path = self.download_config(protocol_config)
-
-                response.action_response = self.execute(config_file_path)
+                # config_file_path = self.download_config(protocol_config)
+                config_file_path = protocol_config
+                payload = deepcopy(self.manager_vars) 
+                payload.pop("config_path")
+                self.get_logger().info(f"{self.manager_vars=}")
+                self.get_logger().info(f"ot2 {payload=}")
+                self.get_logger().info(f"config_file_path: {config_file_path}")
+                res = self.execute(config_file_path, payload)
+                response.action_response = 1
+                response.action_msg= "all good ot2"
+                self.get_logger().info('Finished Action: ' + request.action_handle)
+                return response
 
             else:
-                self.get_logger().error("Required 'config' was not specified in request.vars")
-
-        return response
-
+                response.action_msg = "Required 'config' was not specified in request.vars"
+                response.action_response = 0
+                self.get_logger().error(response.action_msg)
+                return response
+            
 
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
+        self.state = self.ot2.get_robot_status()
         self.stateMsg.data = "State %s" % self.state
         self.statePub.publish(self.stateMsg)
-        self.get_logger().info('Publishing: "%s"' % self.stateMsg.data)
+        self.get_logger().info(self.stateMsg.data)
 
 
     def download_config(self, protocol_config: str):
@@ -157,7 +170,7 @@ class ot2Node(Node):
         # config_dir_path = '/root/config/temp'
         # config_file_path = config_dir_path + "/pc_document.yaml"
         
-        config_dir_path = Path.home().resolve() / "ot2_temp"
+        config_dir_path = Path.home().resolve() / ".ot2_temp"
         config_dir_path.mkdir(exist_ok=True, parents=True)
         config_file_path = config_dir_path / f"protocol-{datetime.now().strftime('%Y%m%d-%H%m%s')}.yaml"
         
@@ -168,9 +181,7 @@ class ot2Node(Node):
 
         return config_file_path
 
-
-
-    def execute(self, protocol_path):
+    def execute(self, protocol_path, payload=None):
         """ 
         Compiles the yaml at protocol_path into .py file; 
         Transfers and Exececutes the .py file
@@ -189,31 +200,27 @@ class ot2Node(Node):
         ## TODO Should first check that the ot2/node is not in process
         ## TODO must check for /IDLE/AVAILABLE or COMPLETED state
 
-        response = False
         self.state = "BUSY"
         self.stateCallback()
 
-
         try:
-            self.protocol_file_path, self.resource_file_path = self.ot2.compile_protocol(protocol_path)     
+            self.protocol_file_path, self.resource_file_path = self.ot2.compile_protocol(protocol_path, payload=payload) 
+            protocol_file_path = Path(self.protocol_file_path)
+            self.get_logger().info(f"{protocol_file_path.resolve()=}")    
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
             resp = self.ot2.execute(self.run_id)
     
             if resp["data"]["status"] == "succeeded":
-                self.state = "COMPLETED"
                 self.stateCallback()
                 # self.poll_OT2_until_run_completion()
-                response = True
+                return True
 
-            self.state  = "READY"
-
-        except FileNotFoundError:
-            self.state = "ERROR"
-            response_msg = "Could not find protocol config file at {}".format(protocol_path)
-            self.get_logger().error(response_msg)
-            self.stateCallback()
-
-            self.state  = "READY"
+        # except FileNotFoundError:
+        #     from pathlib import Path 
+            
+        #     response_msg = "Could not find protocol config file at {}, {}".format(protocol_path, Path(protocol_path).exists())
+        #     self.get_logger().error(response_msg)
+        #     self.stateCallback()
             
         except Exception as e:
             self.state = "ERROR"
@@ -232,16 +239,11 @@ class ot2Node(Node):
             rclpy.shutdown()  ## TODO: Could alternatively indent into the if block. 
                               ## TODO: Changed to as is to forestall any unexpected exceptions
 
-        
-        return response
-
-
-
     def poll_OT2_until_run_completion(self):
         """ Queries the OT2 run state until reported as 'succeeded' """
 
         self.get_logger().info("Polling OT2 run until completion")
-        while self.state != "COMPLETED":
+        while self.state != "IDLE":
 
             run_status = self.ot2.get_run(self.run_id)
 
