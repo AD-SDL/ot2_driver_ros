@@ -124,7 +124,6 @@ class ot2Node(Node):
             protocol_config = self.manager_vars.get("config_path", None) 
             if protocol_config:
                 config_file_path = self.download_config(protocol_config)
-                config_file_path = protocol_config
                 payload = deepcopy(self.manager_vars) 
                 payload.pop("config_path")
                 self.get_logger().info(f"{self.manager_vars=}")
