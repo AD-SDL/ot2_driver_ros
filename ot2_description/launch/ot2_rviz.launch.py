@@ -13,7 +13,7 @@ def generate_launch_description():
 
   pkg_share = FindPackageShare(package='ot2_description').find('ot2_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/ot2_rviz_config.rviz')
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/ot2_robot.xacro') 
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/OT2_robot.xacro') 
  
   fake_hardware = LaunchConfiguration('fake_hardware')
   urdf_model = LaunchConfiguration('urdf_model')
@@ -81,7 +81,7 @@ def generate_launch_description():
   start_ot2_alpha_description_client = Node(
     condition=UnlessCondition(fake_hardware),
     package = "ot2_description",
-    executable = 'ot2_alpha_description_client',
+    executable = 'ot2_description_client',
     name = 'OT2AlphaDescriptionNode',
     output = 'screen'
   )
@@ -89,7 +89,7 @@ def generate_launch_description():
   start_ot2_betha_description_client = Node(
     condition=UnlessCondition(fake_hardware),
     package = "ot2_description",
-    executable = 'ot2_betha_description_client',
+    executable = 'ot2_description_client',
     name = 'OT2BethaDescriptionNode',
     output = 'screen'
   )
@@ -110,7 +110,7 @@ def generate_launch_description():
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
   ld.add_action(start_ot2_alpha_description_client)
-  ld.add_action(start_ot2_betha_description_client)
+  # ld.add_action(start_ot2_betha_description_client)
 
  
   return ld

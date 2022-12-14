@@ -69,51 +69,17 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        pf400/hand:
+        OT2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        pf400/inner_link:
+        OT2_2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        pf400/left_finger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        pf400/outer_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        pf400/rail:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        pf400/rail_base:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        pf400/right_finger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        pf400/z_carriage:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        pf400/z_column:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
+
       Mass Properties:
         Inertia: true
         Mass: true
@@ -125,7 +91,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: pf400/rail_base
+    Fixed Frame: module_carts/cart_8
     Frame Rate: 30
   Name: root
   Tools:
