@@ -29,4 +29,11 @@
     <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
   </joint>
 
+  <joint name="OT2_gamma" type="fixed">
+    <parent link="module_carts/cart_4"/>
+    <child link="ot2/OT2_gamma"/>
+    <axis xyz="0 0 0"/>
+    <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
+    <limit effort="1000.0" lower="0" upper="0" velocity="0.5"/>
+  </joint>
 </robot>
