@@ -29,7 +29,7 @@ class OT2DescriptionClient(Node):
         state_cb_group = ReentrantCallbackGroup()
 
         self.statePub = self.create_publisher(String, NODE_NAME + '/state',10)
-        self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
+        # self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
 
         self.joint_publisher = self.create_publisher(JointState,'joint_states', 10, callback_group = joint_cb_group)
         self.joint_state_handler = self.create_timer(timer_period, callback = self.joint_state_publisher_callback, callback_group = joint_cb_group)
@@ -50,11 +50,11 @@ class OT2DescriptionClient(Node):
         
         # self.get_logger().info("BUGG")
         # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY
-        joint_states = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+        joint_states = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         ot2_joint_msg = JointState()
         ot2_joint_msg.header = Header()
         ot2_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        ot2_joint_msg.name = ['OT2_1_Pipette_Joint1_alpha', 'OT2_1_Pipette_Joint2_alpha', 'OT2_1_Single_Pipette_alpha', 'OT2_1_8_Channel_Pipette_alpha', 'OT2_1_Pipette_Joint1_betha','OT2_1_Pipette_Joint2_betha', 'OT2_1_Single_Pipette_betha', 'OT2_1_8_Channel_Pipette_betha']
+        ot2_joint_msg.name = ['OT2_1_Pipette_Joint1_alpha', 'OT2_1_Pipette_Joint2_alpha', 'OT2_1_Single_Pipette_alpha', 'OT2_1_8_Channel_Pipette_alpha', 'OT2_1_Pipette_Joint1_betha','OT2_1_Pipette_Joint2_betha', 'OT2_1_Single_Pipette_betha', 'OT2_1_8_Channel_Pipette_betha','OT2_1_Pipette_Joint1_gamma','OT2_1_Pipette_Joint2_gamma', 'OT2_1_Single_Pipette_gamma', 'OT2_1_8_Channel_Pipette_gamma']
         ot2_joint_msg.position = joint_states
         # print(joint_states)
 
