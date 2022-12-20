@@ -1,5 +1,0 @@
-repositories:
-  wei_services:
-    type: git
-    url: https://github.com/AD-SDL/wei_ros.git
-    version: ef8396f70039487d56a8f376558d4621a2512329
