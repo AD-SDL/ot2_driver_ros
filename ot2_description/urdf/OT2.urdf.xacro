@@ -309,7 +309,8 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
-    <joint name="OT2_1_Pipette_Joint1_gamma" type="prismatic">
+  
+  <joint name="OT2_1_Pipette_Joint1_gamma" type="prismatic">
     <parent link="${prefix}OT2_gamma"/>
     <child link="${prefix}OT2_pipette_rail_gamma"/>
     <axis xyz="0 -1 0"/>
