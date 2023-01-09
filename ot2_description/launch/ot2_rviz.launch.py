@@ -13,7 +13,7 @@ def generate_launch_description():
 
   pkg_share = FindPackageShare(package='ot2_description').find('ot2_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/ot2_rviz_config.rviz')
-  default_urdf_model_path = os.path.join(pkg_share, 'urdf/OT2_robot.xacro') 
+  default_urdf_model_path = os.path.join(pkg_share, 'urdf/OT2_module.xacro') 
  
   fake_hardware = LaunchConfiguration('fake_hardware')
   urdf_model = LaunchConfiguration('urdf_model')
