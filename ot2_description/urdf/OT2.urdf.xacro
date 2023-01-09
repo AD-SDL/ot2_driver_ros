@@ -246,7 +246,7 @@
   </link>
 
   <!-- Joints -->
-  <joint name="OT2_1_Pipette_Joint1_alpha" type="prismatic">
+  <joint name="OT2_Alpha_Pipette_Joint1" type="prismatic">
     <parent link="${prefix}OT2_alpha"/>
     <child link="${prefix}OT2_pipette_rail_alpha"/>
     <axis xyz="0 -1 0"/>
@@ -254,7 +254,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint2_alpha" type="prismatic">
+  <joint name="OT2_Alpha_Pipette_Joint2" type="prismatic">
     <parent link="${prefix}OT2_pipette_rail_alpha"/>
     <child link="${prefix}OT2_pipette_base_alpha"/>
     <axis xyz="-1 0 0"/>
@@ -262,7 +262,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Single_Pipette_alpha" type="prismatic">
+  <joint name="OT2_Alpha_Single_Pipette" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_alpha"/>
     <child link="${prefix}OT2_single_pipette_alpha"/>
     <axis xyz="0 0 -1"/>
@@ -270,7 +270,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_8_Channel_Pipette_alpha" type="prismatic">
+  <joint name="OT2_Alpha_8_Channel_Pipette" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_alpha"/>
     <child link="${prefix}OT2_8_channel_pipette_alpha"/>
     <axis xyz="0 0 -1"/>
@@ -278,7 +278,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint1_betha" type="prismatic">
+  <joint name="OT2_Betha_Pipette_Joint1" type="prismatic">
     <parent link="${prefix}OT2_betha"/>
     <child link="${prefix}OT2_pipette_rail_betha"/>
     <axis xyz="0 -1 0"/>
@@ -286,7 +286,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint2_betha" type="prismatic">
+  <joint name="OT2_Betha_Pipette_Joint2" type="prismatic">
     <parent link="${prefix}OT2_pipette_rail_betha"/>
     <child link="${prefix}OT2_pipette_base_betha"/>
     <axis xyz="-1 0 0"/>
@@ -294,7 +294,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Single_Pipette_betha" type="prismatic">
+  <joint name="OT2_Betha_Single_Pipette" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_betha"/>
     <child link="${prefix}OT2_single_pipette_betha"/>
     <axis xyz="0 0 -1"/>
@@ -302,15 +302,15 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_8_Channel_Pipette_betha" type="prismatic">
+  <joint name="OT2_Betha_8_Channel_Pipette" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_betha"/>
     <child link="${prefix}OT2_8_channel_pipette_betha"/>
     <axis xyz="0 0 -1"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
-  
-  <joint name="OT2_1_Pipette_Joint1_gamma" type="prismatic">
+
+  <joint name="OT2_Gamma_Pipette_Joint1" type="prismatic">
     <parent link="${prefix}OT2_gamma"/>
     <child link="${prefix}OT2_pipette_rail_gamma"/>
     <axis xyz="0 -1 0"/>
@@ -318,7 +318,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Pipette_Joint2_gamma" type="prismatic">
+  <joint name="OT2_Gamma_Pipette_Joint2" type="prismatic">
     <parent link="${prefix}OT2_pipette_rail_gamma"/>
     <child link="${prefix}OT2_pipette_base_gamma"/>
     <axis xyz="-1 0 0"/>
@@ -326,7 +326,7 @@
     <limit effort="1000.0" lower="0" upper="0.3" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_Single_Pipette_gamma" type="prismatic">
+  <joint name="OT2_Gamma_Single_Pipette" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_gamma"/>
     <child link="${prefix}OT2_single_pipette_gamma"/>
     <axis xyz="0 0 -1"/>
@@ -334,7 +334,7 @@
     <limit effort="1000.0" lower="0" upper="0.18" velocity="0.5"/>
   </joint>
 
-  <joint name="OT2_1_8_Channel_Pipette_gamma" type="prismatic">
+  <joint name="OT2_Gamma_8_Channel_Pipette" type="prismatic">
     <parent link="${prefix}OT2_pipette_base_gamma"/>
     <child link="${prefix}OT2_8_channel_pipette_gamma"/>
     <axis xyz="0 0 -1"/>
