@@ -91,7 +91,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: module_carts/cart_8
+    Fixed Frame: module_carts/cart_1
     Frame Rate: 30
   Name: root
   Tools:
