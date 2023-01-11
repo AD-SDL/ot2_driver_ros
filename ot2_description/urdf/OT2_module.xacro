@@ -14,7 +14,7 @@
   
 
   <joint name="OT2_alpha" type="fixed">
-    <parent link="module_carts/cart_8"/>
+    <parent link="module_carts/cart_1"/>
     <child link="ot2/OT2_alpha"/>
     <axis xyz="0 0 0"/>
     <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
@@ -22,7 +22,7 @@
   </joint>
 
   <joint name="OT2_betha" type="fixed">
-    <parent link="module_carts/cart_7"/>
+    <parent link="module_carts/cart_2"/>
     <child link="ot2/OT2_betha"/>
     <axis xyz="0 0 0"/>
     <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
@@ -30,7 +30,7 @@
   </joint>
 
   <joint name="OT2_gamma" type="fixed">
-    <parent link="module_carts/cart_4"/>
+    <parent link="module_carts/cart_5"/>
     <child link="ot2/OT2_gamma"/>
     <axis xyz="0 0 0"/>
     <origin xyz="0.825 0.47 0" rpy="0 0 3.1416"/>
