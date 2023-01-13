@@ -6,17 +6,23 @@ from typing import List, Tuple
 from pathlib import Path
 from datetime import datetime
 from copy import deepcopy
-
+from time import sleep
 
 import rclpy
+from rclpy.node import Node
+
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
+
+from wei_services.srv import WeiActions, WeiDescription
+from std_msgs.msg import String
+
 from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver
 import opentrons.simulate
 from opentrons.simulate import format_runlog
 
-from rclpy.node import Node
-from wei_services.srv import WeiActions, WeiDescription
-from std_msgs.msg import String
-from rclpy.executors import MultiThreadedExecutor
+
+
 
 import os
 import time
@@ -29,16 +35,23 @@ class ot2Node(Node):
     Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
     """
 
-    def __init__(self, NODE_NAME, ROBOT_IP):
+    def __init__(self, TEMP_NODE_NAME = "OT2_Node"):
         """Setup OT2 node"""
 
-        super().__init__(NODE_NAME)
+        super().__init__(TEMP_NODE_NAME)
+        self.node_name = self.get_name()
 
-        self.ot2 = OT2_Driver(OT2_Config(ip=ROBOT_IP))
-        self.get_logger().info("OT2 is online")  # Wakeup Message
+        self.declare_parameter("ip","127.0.0.1")
+
+        # Receiving the real IP and PORT from the launch parameters
+        self.ip =  self.get_parameter("ip").get_parameter_value().string_value
+
+        self.get_logger().info("Received IP: " + self.ip + " Robot name: " + str(self.node_name))
+        self.state = "UNKNOWN"
+        self.connect_robot()
 
         self.description = {
-            "name": NODE_NAME,
+            "name": self.node_name,
             "type": "",
             "actions": {
                 "execute": "config : %s",  ## takes in the yaml content as second string arg
@@ -46,6 +59,9 @@ class ot2Node(Node):
             },
         }
 
+        action_cb_group = ReentrantCallbackGroup()
+        description_cb_group = ReentrantCallbackGroup()
+        state_cb_group = ReentrantCallbackGroup()
         self.timer_period = 1  # seconds
 
         ## Creating state Msg as a instance variable
@@ -57,15 +73,28 @@ class ot2Node(Node):
         self.statePub = self.create_publisher(String, "ot2_state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
-        self.stateTimer = self.create_timer(self.timer_period, self.stateCallback)
+        self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
 
         # Control and discovery services
         self.actionSrv = self.create_service(
-            WeiActions, NODE_NAME + "/action_handler", self.actionCallback
+            WeiActions, self.node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group
         )
         self.descriptionSrv = self.create_service(
-            WeiDescription, NODE_NAME + "/description_handler", self.descriptionCallback
+            WeiDescription, self.node_name + "/description_handler", self.descriptionCallback, callback_group = description_cb_group
         )
+
+    def connect_robot(self):
+        try:
+            self.ot2 = OT2_Driver(OT2_Config(ip=self.ip))
+
+        except Exception as error_msg:
+            self.state = "OT2 CONNECTION ERROR"
+            self.get_logger().error("------- OT2 " + str(self.node_name) + " Error message: " + str(error_msg) +  " -------")
+
+        else:
+            self.get_logger().info("OT2 "+ str(self.node_name) + " online")
+
+
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -98,6 +127,9 @@ class ot2Node(Node):
         -------
         None
         """
+        if self.state == "OT2 CONNECTION ERROR":
+            self.get_logger.error("Can not accept the job! OT2 CONNECTION ERROR")
+            return
 
         self.manager_command = request.action_handle
         self.manager_vars = eval(request.vars)
@@ -148,6 +180,46 @@ class ot2Node(Node):
         self.stateMsg.data = "State %s" % self.state
         self.statePub.publish(self.stateMsg)
         self.get_logger().info(self.stateMsg.data)
+
+        if self.state != "OT2 CONNECTION ERROR":
+            msg = String()
+            ID_run = "1" #TODO: Get the actual run ID 
+            state = self.ot2.check_run_status(run_id=ID_run)
+            if state == "IDLE":
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
+            elif state == "RUNNING" or state == "FINISHING":
+                self.state = "BUSY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
+            elif state == "SUCCEEDED":
+                self.state = "COMPLETED"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
+            elif state == "FAILED":
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+                sleep(0.5)
+
+        else: 
+            msg = String()
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().error(msg.data)
+            self.get_logger().warn("Trying to connect again! IP: " + self.ip)
+            self.connect_robot()
 
     def download_config(self, protocol_config: str):
         """
@@ -271,22 +343,29 @@ class ot2Node(Node):
 
 def main(args=None):
 
-    ip = os.getenv("robot_ip", None)
-    node_name = os.getenv("robot_name", None)
 
-    if ip:
-        rclpy.init(args=args)  # initialize Ros2 communication
-        node = ot2Node(ROBOT_IP=ip, NODE_NAME=node_name)
+    rclpy.init(args=args)  # initialize Ros2 communication
+    try:
+        ot2_client = ot2Node()
+        executor = MultiThreadedExecutor()
+        executor.add_node(ot2_client)
+
         try:
-            rclpy.spin(node)  # keep Ros2 communication open for action node
+            ot2_client.get_logger().info('Beginning client, shut down with CTRL-C')
+            executor.spin()
         except KeyboardInterrupt:
-            node.ot2.change_lights_status(False)
-        except:
-            pass
+            ot2_client.get_logger().info('Keyboard interrupt, shutting down.\n')
+            ot2_client.ot2.change_lights_status(False)
 
-    else:
-        print("The robot_ip environment variable has not been specified.")
-        ## NOTE: TODO TO Verify that the IP Address is correct?
+        finally:
+            executor.shutdown()
+            ot2_client.destroy_node()
+    finally:
+        rclpy.shutdown()
+
+    # else:
+    #     print("The robot_ip environment variable has not been specified.")
+    #     ## NOTE: TODO TO Verify that the IP Address is correct?
 
 
 if __name__ == "__main__":

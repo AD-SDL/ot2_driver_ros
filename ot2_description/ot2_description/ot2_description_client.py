@@ -13,14 +13,14 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-# from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS WHEN IT IS READY
+from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS WHEN IT IS READY
 
 class OT2DescriptionClient(Node):
 
     def __init__(self, NODE_NAME = 'OT2DescriptionNode'):
         super().__init__(NODE_NAME)
 
-        # self.ot2 = OT2_Driver(OT2_Config(ip=ROBOT_IP))  #TODO: USE THIS WHEN IT IS READY
+        self.ot2 = OT2_Driver(OT2_Config(ip=ROBOT_IP))  #TODO: USE THIS WHEN IT IS READY
 
         timer_period = 0.1  # seconds
 
