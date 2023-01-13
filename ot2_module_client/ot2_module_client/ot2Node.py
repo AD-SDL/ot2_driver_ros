@@ -65,12 +65,12 @@ class ot2Node(Node):
         self.timer_period = 1  # seconds
 
         ## Creating state Msg as a instance variable
-        self.stateMsg = String()
-        self.state = "READY"  ## If we get here without error, the client is initialized
-        self.stateMsg.data = "State %s" % self.state
+        # self.stateMsg = String()
+        # self.state = "READY"  ## If we get here without error, the client is initialized
+        # self.stateMsg.data = "State %s" % self.state
 
         # Publisher for ot2 state
-        self.statePub = self.create_publisher(String, "ot2_state", 10)
+        self.statePub = self.create_publisher(String, self.node_name + "/ot2_state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
@@ -85,7 +85,7 @@ class ot2Node(Node):
 
     def connect_robot(self):
         try:
-            self.ot2 = OT2_Driver(OT2_Config(ip=self.ip))
+            self.ot2 = OT2_Driver(OT2_Config(ip = self.ip))
 
         except Exception as error_msg:
             self.state = "OT2 CONNECTION ERROR"
@@ -176,10 +176,7 @@ class ot2Node(Node):
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
-        self.state = self.ot2.get_robot_status()
-        self.stateMsg.data = "State %s" % self.state
-        self.statePub.publish(self.stateMsg)
-        self.get_logger().info(self.stateMsg.data)
+ 
 
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
