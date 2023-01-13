@@ -22,7 +22,7 @@ def generate_launch_description():
 
     declare_use_robot_name_cmd = DeclareLaunchArgument(
         name='robot_name',
-        default_value="OT2_alpha",
+        default_value="OT2_Alpha",
         description='Flag to accept robot_name')
 
     ot2 = Node(
@@ -31,7 +31,7 @@ def generate_launch_description():
             namespace = 'std_ns',
             name=robot_name,
             output='screen',
-            prameters = [
+            parameters = [
                 {"ip":ip}
                 ],
             emulate_tty = True,
