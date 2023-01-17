@@ -17,10 +17,18 @@ from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS W
 
 class OT2DescriptionClient(Node):
 
-    def __init__(self, NODE_NAME = 'OT2DescriptionNode'):
-        super().__init__(NODE_NAME)
+    def __init__(self, TEMP_NODE_NAME = 'OT2DescriptionNode'):
 
-        self.ot2 = OT2_Driver(OT2_Config(ip=ROBOT_IP))  #TODO: USE THIS WHEN IT IS READY
+
+        super().__init__(TEMP_NODE_NAME)
+        self.node_name = self.get_name()
+
+        self.declare_parameter("ip","127.0.0.1")
+
+        # Receiving the real IP and PORT from the launch parameters
+        self.ip =  self.get_parameter("ip").get_parameter_value().string_value
+
+        self.get_logger().info("Received IP: " + self.ip + " Robot name: " + str(self.node_name))
 
         timer_period = 0.1  # seconds
 

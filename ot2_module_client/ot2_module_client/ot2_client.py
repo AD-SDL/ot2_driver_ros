@@ -21,9 +21,6 @@ from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver
 import opentrons.simulate
 from opentrons.simulate import format_runlog
 
-
-
-
 import os
 import time
 
