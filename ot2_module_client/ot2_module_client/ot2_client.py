@@ -28,10 +28,10 @@ import os
 import time
 
 
-class ot2Node(Node):
+class OT2Client(Node):
 
     """
-    The init function is neccesary for the ot2Node class to initialize all variables, parameters, and other functions.
+    The init function is neccesary for the OT2Client class to initialize all variables, parameters, and other functions.
     Inside the function the parameters exist, and calls to other functions and services are made so they can be executed in main.
     """
 
@@ -343,7 +343,7 @@ def main(args=None):
 
     rclpy.init(args=args)  # initialize Ros2 communication
     try:
-        ot2_client = ot2Node()
+        ot2_client = OT2Client()
         executor = MultiThreadedExecutor()
         executor.add_node(ot2_client)
 

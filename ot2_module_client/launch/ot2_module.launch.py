@@ -26,16 +26,16 @@ def generate_launch_description():
         description='Flag to accept robot_name')
 
     ot2 = Node(
-            package='ot2_module_client',
-            executable='OT2_client',
-            namespace = 'std_ns',
-            name=robot_name,
-            output='screen',
-            parameters = [
-                {"ip":ip}
-                ],
-            emulate_tty = True,
-        )
+        package='ot2_module_client',
+        executable='ot2_client',
+        namespace = 'std_ns',
+        name=robot_name,
+        output='screen',
+        parameters = [
+            {"ip":ip}
+            ],
+        emulate_tty = True,
+    )
 
     ld.add_action(declare_use_ip_cmd)
     ld.add_action(declare_use_robot_name_cmd)
