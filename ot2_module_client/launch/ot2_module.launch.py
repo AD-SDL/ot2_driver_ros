@@ -27,7 +27,7 @@ def generate_launch_description():
 
     ot2 = Node(
             package='ot2_module_client',
-            executable='ot2Node',
+            executable='OT2_client',
             namespace = 'std_ns',
             name=robot_name,
             output='screen',

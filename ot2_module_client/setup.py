@@ -23,7 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ot2Node = ot2_module_client.ot2Node:main'
+            'OT2_cliet = ot2_module_client.OT2_client:main'
         ],
     },
 )
