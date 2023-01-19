@@ -60,7 +60,10 @@ class OT2DescriptionClient(Node):
     def joint_state_publisher_callback(self):
         
         # self.get_logger().info("BUGG")
-        # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY
+        # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY 
+        # TODO: Check Robot list and laucnh only available robots
+        # TODO: Check Robot locations from Launch parameters and spawn the robots 
+        
         joint_states = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         ot2_joint_msg = JointState()
         ot2_joint_msg.header = Header()
