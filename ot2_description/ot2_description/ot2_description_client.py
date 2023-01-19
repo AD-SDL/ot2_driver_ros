@@ -23,12 +23,15 @@ class OT2DescriptionClient(Node):
         super().__init__(TEMP_NODE_NAME)
         self.node_name = self.get_name()
 
-        self.declare_parameter("ip","127.0.0.1")
+        self.declare_parameter("ip_list","127.0.0.1")
+        self.declare_parameter("robot_list","OT2_Alpha")
+
 
         # Receiving the real IP and PORT from the launch parameters
-        self.ip =  self.get_parameter("ip").get_parameter_value().string_value
+        self.ip_list =  self.get_parameter("ip_list").get_parameter_value().string_value
+        self.robot_list =  self.get_parameter("robot_list").get_parameter_value().string_values
 
-        self.get_logger().info("Received IP: " + self.ip + " Robot name: " + str(self.node_name))
+        self.get_logger().info("Received IP list: " + self.ip_list + " Robot list: " + str(self.robot_list))
 
         timer_period = 0.1  # seconds
 
