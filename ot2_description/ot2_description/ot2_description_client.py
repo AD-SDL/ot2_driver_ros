@@ -29,7 +29,7 @@ class OT2DescriptionClient(Node):
 
         # Receiving the real IP and PORT from the launch parameters
         self.ip_list =  self.get_parameter("ip_list").get_parameter_value().string_value
-        self.robot_list =  self.get_parameter("robot_list").get_parameter_value().string_values
+        self.robot_list =  self.get_parameter("robot_list").get_parameter_value().string_value
 
         self.get_logger().info("Received IP list: " + self.ip_list + " Robot list: " + str(self.robot_list))
 
@@ -68,7 +68,7 @@ class OT2DescriptionClient(Node):
         ot2_joint_msg = JointState()
         ot2_joint_msg.header = Header()
         ot2_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        ot2_joint_msg.name = ['OT2_1_Pipette_Joint1_alpha', 'OT2_1_Pipette_Joint2_alpha', 'OT2_1_Single_Pipette_alpha', 'OT2_1_8_Channel_Pipette_alpha', 'OT2_1_Pipette_Joint1_betha','OT2_1_Pipette_Joint2_betha', 'OT2_1_Single_Pipette_betha', 'OT2_1_8_Channel_Pipette_betha','OT2_1_Pipette_Joint1_gamma','OT2_1_Pipette_Joint2_gamma', 'OT2_1_Single_Pipette_gamma', 'OT2_1_8_Channel_Pipette_gamma']
+        ot2_joint_msg.name = ['OT2_Alpha_Pipette_Joint1', 'OT2_Alpha_Pipette_Joint2', 'OT2_Alpha_Single_Pipette', 'OT2_Alpha_8_Channel_Pipette', 'OT2_Betha_Pipette_Joint1','OT2_Betha_Pipette_Joint2', 'OT2_Betha_Single_Pipette', 'OT2_Betha_8_Channel_Pipette','OT2_Gamma_Pipette_Joint1','OT2_Gamma_Pipette_Joint2', 'OT2_Gamma_Single_Pipette', 'OT2_Gamma_8_Channel_Pipette']
         ot2_joint_msg.position = joint_states
         # print(joint_states)
 
