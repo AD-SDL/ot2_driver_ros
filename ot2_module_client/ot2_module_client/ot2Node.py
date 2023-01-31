@@ -213,8 +213,9 @@ class ot2Node(Node):
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
+            self.get_logger().info("Transfer sucessful")
             resp = self.ot2.execute(self.run_id)
-
+            self.get_logger().info("Execute successful")
             if resp["data"]["status"] == "succeeded":
                 self.stateCallback()
                 # self.poll_OT2_until_run_completion()
@@ -228,6 +229,7 @@ class ot2Node(Node):
         #     self.stateCallback()
 
         except Exception as e:
+            import traceback
             self.state = "ERROR"
             self.stateCallback()
 
@@ -238,7 +240,7 @@ class ot2Node(Node):
                 on the shared LAN."
                 self.get_logger().error(response_msg)
 
-            response_msg = f"Error: {e}"
+            response_msg = f"Error: {traceback.format_exc()}"
             self.get_logger().error(response_msg)
 
             rclpy.shutdown()  ## TODO: Could alternatively indent into the if block.
