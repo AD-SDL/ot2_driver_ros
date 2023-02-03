@@ -45,6 +45,11 @@ class OT2Client(Node):
 
         self.get_logger().info("Received IP: " + self.ip + " Robot name: " + str(self.node_name))
         self.state = "UNKNOWN"
+        self.action_flag = "READY"
+        self.robot_status == ""
+        self.past_robot_status = ""
+        self.state_refresher_timer = 0
+
         self.connect_robot()
 
         self.description = {
@@ -71,6 +76,8 @@ class OT2Client(Node):
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
+      
+        self.StateRefresherTimer = self.create_timer(self.timer_period + 0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
 
         # Control and discovery services
         self.actionSrv = self.create_service(
@@ -91,25 +98,81 @@ class OT2Client(Node):
         else:
             self.get_logger().info("OT2 "+ str(self.node_name) + " online")
 
+    def robot_state_refresher_callback(self):
+        "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
+        try:
+            # TODO: FIX the bug: When Action call and refresh state callback function is executed at the same time action call is being ignored.
+            # Refresh state callback runs "update state" functions while action_callback is running transfer and Network socket losses data when multiple commands were sent 
 
+            if self.action_flag.upper() == "READY": #Only refresh the state manualy if robot is not running a job.
+                ID_run = "1" #TODO: Get the actual run ID 
+                self.robot_status = self.ot2.check_run_status(run_id=ID_run)
 
-    def descriptionCallback(self, request, response):
-        """The descriptionCallback function is a service that can be called to showcase the available actions a robot
-        can preform as well as deliver essential information required by the master node.
-        Parameters:
-        -----------
-        request: str
-            Request to the robot to deliver actions
-        response: Tuple[str, List]
-            The actions a robot can do, will be populated during execution
-        Returns
-        -------
-        Tuple[str, List]
-            The robot steps it can do
-        """
-        response.description_response = str(self.description)
+                # self.get_logger().info("Refresh state")
+                self.state_refresher_timer = 0 
 
-        return response
+            """Below won't work for OT2 since it can run for hours it will stay in the same movement state for a long time. 
+                TODO: Find another solition to recover frozen robot"""       
+            # if self.past_robot_status == self.robot_status:
+            #     self.state_refresher_timer += 1
+            # elif self.past_robot_status != self.robot_status:
+            #     self.past_robot_status = self.robot_status
+            #     self.state_refresher_timer = 0 
+            # if self.state_refresher_timer > 180: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
+            #     # self.get_logger().info("Refresh state, robot state is frozen...")
+            #     self.action_flag = "READY"
+
+        except Exception as err:
+            # self.state = "PF400 CONNECTION ERROR"
+            self.get_logger().error(str(err))
+
+    def stateCallback(self):
+        """The state of the robot, can be ready, completed, busy, error"""
+        try:
+            self.ot2
+            state = self.robot_status 
+        except Exception as err:
+            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+            self.state = "OT2 CONNECTION ERROR"
+
+        if self.state != "OT2 CONNECTION ERROR":
+            msg = String()
+            # TODO: ADD COMPLETED STATE AND HANDLE ACTION_FLAG
+            if state == "IDLE":
+                self.state = "READY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
+            elif state == "RUNNING" or state == "FINISHING":
+                self.state = "BUSY"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
+            elif state == "SUCCEEDED":
+                self.state = "COMPLETED"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().info(msg.data)
+                sleep(0.5)
+
+            elif state == "FAILED":
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+                sleep(0.5)
+
+        else: 
+            msg = String()
+            msg.data = 'State: %s' % self.state
+            self.statePub.publish(msg)
+            self.get_logger().error(msg.data)
+            self.get_logger().warn("Trying to connect again! IP: " + self.ip)
+            self.connect_robot()
 
     async def actionCallback(self, request: str, response: str) -> None:
 
@@ -171,55 +234,24 @@ class OT2Client(Node):
                 self.get_logger().error(response.action_msg)
                 return response
 
-    def stateCallback(self):
-        """The state of the robot, can be ready, completed, busy, error"""
-        try:
-            ID_run = "1" #TODO: Get the actual run ID 
-            state = self.ot2.check_run_status(run_id=ID_run)
+    def descriptionCallback(self, request, response):
+        """The descriptionCallback function is a service that can be called to showcase the available actions a robot
+        can preform as well as deliver essential information required by the master node.
+        Parameters:
+        -----------
+        request: str
+            Request to the robot to deliver actions
+        response: Tuple[str, List]
+            The actions a robot can do, will be populated during execution
+        Returns
+        -------
+        Tuple[str, List]
+            The robot steps it can do
+        """
+        response.description_response = str(self.description)
 
-        except Exception as err:
-            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
-            self.state = "OT2 CONNECTION ERROR"
-
-        if self.state != "OT2 CONNECTION ERROR":
-            msg = String()
-
-            if state == "IDLE":
-                self.state = "READY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-                sleep(0.5)
-
-            elif state == "RUNNING" or state == "FINISHING":
-                self.state = "BUSY"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-                sleep(0.5)
-
-            elif state == "SUCCEEDED":
-                self.state = "COMPLETED"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().info(msg.data)
-                sleep(0.5)
-
-            elif state == "FAILED":
-                self.state = "ERROR"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().error(msg.data)
-                sleep(0.5)
-
-        else: 
-            msg = String()
-            msg.data = 'State: %s' % self.state
-            self.statePub.publish(msg)
-            self.get_logger().error(msg.data)
-            self.get_logger().warn("Trying to connect again! IP: " + self.ip)
-            self.connect_robot()
-
+        return response
+        
     def download_config(self, protocol_config: str):
         """
         Saves protocol_config string to a local yaml file locaton
