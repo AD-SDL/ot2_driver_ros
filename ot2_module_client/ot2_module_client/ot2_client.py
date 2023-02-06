@@ -140,7 +140,7 @@ class OT2Client(Node):
             msg = String()
             # TODO: ADD COMPLETED STATE AND HANDLE ACTION_FLAG
 
-            if state == "FAILED" or (self.state == "ERROR" and self.action_flag = "BUSY"):
+            if state == "FAILED" or (self.state == "ERROR" and self.action_flag == "BUSY"):
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
