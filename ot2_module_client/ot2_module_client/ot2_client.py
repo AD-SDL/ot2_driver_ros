@@ -174,7 +174,7 @@ class OT2Client(Node):
             self.get_logger().warn("Trying to connect again! IP: " + self.ip)
             self.connect_robot()
 
-    async def actionCallback(self, request: str, response: str) -> None:
+    async def actionCallback(self, request, response):
 
         """The actions the robot can perform, also performs them
         Parameters:
@@ -189,8 +189,14 @@ class OT2Client(Node):
         """
         if self.state == "OT2 CONNECTION ERROR":
             self.get_logger.error("Can not accept the job! OT2 CONNECTION ERROR")
-            return
+            response.action_response = -1
+            response.action_msg = message
+            return response
 
+        while self.state != "READY":
+            self.get_logger().warn("Waiting for OT2 to switch READY state...")
+            sleep(0.5)
+        
         self.manager_command = request.action_handle
         self.manager_vars = eval(request.vars)
 
