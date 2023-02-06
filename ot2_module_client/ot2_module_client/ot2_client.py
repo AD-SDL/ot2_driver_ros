@@ -77,7 +77,7 @@ class OT2Client(Node):
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
       
-        self.StateRefresherTimer = self.create_timer(self.timer_period + 0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
+        # self.StateRefresherTimer = self.create_timer(self.timer_period + 0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
 
         # Control and discovery services
         self.actionSrv = self.create_service(
@@ -138,33 +138,32 @@ class OT2Client(Node):
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
             # TODO: ADD COMPLETED STATE AND HANDLE ACTION_FLAG
-            if state == "IDLE":
-                self.state = "READY"
+
+            if state == "FAILED" or (self.state == "ERROR" and self.action_flag = "BUSY"):
+                self.state = "ERROR"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().error(msg.data)
+                self.action_flag = "READY"
+
+            elif self.state == "COMPLETED" or state == "SUCCEEDED":
+                self.state = "COMPLETED"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
+                self.action_flag = "READY"
 
             elif state == "RUNNING" or state == "FINISHING":
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
 
-            elif state == "SUCCEEDED":
-                self.state = "COMPLETED"
+            elif state == "IDLE":
+                self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-                sleep(0.5)
-
-            elif state == "FAILED":
-                self.state = "ERROR"
-                msg.data = 'State: %s' % self.state
-                self.statePub.publish(msg)
-                self.get_logger().error(msg.data)
-                sleep(0.5)
 
         else: 
             msg = String()
@@ -187,6 +186,7 @@ class OT2Client(Node):
         -------
         None
         """
+
         if self.state == "OT2 CONNECTION ERROR":
             self.get_logger.error("Can not accept the job! OT2 CONNECTION ERROR")
             response.action_response = -1
@@ -197,6 +197,8 @@ class OT2Client(Node):
             self.get_logger().warn("Waiting for OT2 to switch READY state...")
             sleep(0.5)
         
+        self.action_flag = "BUSY"    
+
         self.manager_command = request.action_handle
         self.manager_vars = eval(request.vars)
 
@@ -215,6 +217,7 @@ class OT2Client(Node):
         #         self.get_logger().error("Required 'config' was not specified in request.vars")
 
         ## Actual API
+
         if "run_protocol" == self.manager_command:
 
             # protocol_config = self.manager_vars.get("config", None)
@@ -223,21 +226,35 @@ class OT2Client(Node):
                 config_file_path = self.download_config(protocol_config)
                 payload = deepcopy(self.manager_vars)
                 payload.pop("config_path")
+
                 self.get_logger().info(f"{self.manager_vars=}")
                 self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
-                res = self.execute(config_file_path, payload)
-                response.action_response = 1
-                response.action_msg = "all good ot2"
+
+                response_flag, response_msg = self.execute(config_file_path, payload)
+
+                if response_flag == True:
+                    self.state == "COMPLETED"
+                    response.action_response = 0
+                    response.action_msg = response_msg
+
+                elif response_flag == False:
+                    self.state = "ERROR"
+                    response.action_response = -1
+                    response.action_msg = response_msg
+
                 self.get_logger().info("Finished Action: " + request.action_handle)
+
                 return response
 
             else:
                 response.action_msg = (
                     "Required 'config' was not specified in request.vars"
                 )
-                response.action_response = 0
+                response.action_response = -1
                 self.get_logger().error(response.action_msg)
+                se;f.state = "ERROR"
+
                 return response
 
     def descriptionCallback(self, request, response):
@@ -311,9 +328,6 @@ class OT2Client(Node):
         ## TODO Should first check that the ot2/node is not in process
         ## TODO must check for /IDLE/AVAILABLE or COMPLETED state
 
-        self.state = "BUSY"
-        self.stateCallback()
-
         try:
             (
                 self.protocol_file_path,
@@ -326,9 +340,13 @@ class OT2Client(Node):
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("Execute successful")
             if resp["data"]["status"] == "succeeded":
-                self.stateCallback()
                 # self.poll_OT2_until_run_completion()
-                return True
+                response_msg = "Execute successful"
+                return True, response_msg
+
+            else: 
+                response_msg = "Excution failed"
+                return False, response_msg
 
         # except FileNotFoundError:
         #     from pathlib import Path
@@ -337,12 +355,10 @@ class OT2Client(Node):
         #     self.get_logger().error(response_msg)
         #     self.stateCallback()
 
-        except Exception as e:
+        except Exception as err:
             import traceback
-            self.state = "ERROR"
-            self.stateCallback()
 
-            if "no route to host" in str(e.args).lower():
+            if "no route to host" in str(err.args).lower():
                 response_msg = "No route to host error. Ensure that this container \
                 has network access to the robot and that the environment \
                 variable, robot_ip, matches the ip of the connected robot \
@@ -351,8 +367,9 @@ class OT2Client(Node):
 
             response_msg = f"Error: {traceback.format_exc()}"
             self.get_logger().error(response_msg)
+            return False, response_msg
 
-            rclpy.shutdown()  ## TODO: Could alternatively indent into the if block.
+            # rclpy.shutdown()  ## TODO: Could alternatively indent into the if block.
             ## TODO: Changed to as is to forestall any unexpected exceptions
 
     def poll_OT2_until_run_completion(self):
