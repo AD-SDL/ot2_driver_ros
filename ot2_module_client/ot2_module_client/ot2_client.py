@@ -96,7 +96,7 @@ class OT2Client(Node):
             self.get_logger().error("------- OT2 " + str(self.node_name) + " Error message: " + str(error_msg) +  " -------")
 
         else:
-            self.get_logger().info("OT2 "+ str(self.node_name) + " online")
+            self.get_logger().info(str(self.node_name) + " online")
 
     def robot_state_refresher_callback(self):
         "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
@@ -131,6 +131,7 @@ class OT2Client(Node):
         try:
             self.ot2
             state = self.robot_status 
+            self.get_logger.info("TEST:" + str(state))
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "OT2 CONNECTION ERROR"
