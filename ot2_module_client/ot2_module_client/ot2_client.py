@@ -129,7 +129,8 @@ class OT2Client(Node):
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
         try:
-            self.ot2
+            ID_run = "1" #TODO: Get the actual run ID 
+            self.robot_status = self.ot2.check_run_status(run_id=ID_run)
             state = self.robot_status 
             self.get_logger.info("TEST:" + str(state))
         except Exception as err:
@@ -189,9 +190,10 @@ class OT2Client(Node):
         """
 
         if self.state == "OT2 CONNECTION ERROR":
-            self.get_logger.error("Can not accept the job! OT2 CONNECTION ERROR")
+            msg = "Can not accept the job! OT2 CONNECTION ERROR"
+            self.get_logger.error(msg)
             response.action_response = -1
-            response.action_msg = message
+            response.action_msg = msg
             return response
 
         while self.state != "READY":
@@ -254,7 +256,7 @@ class OT2Client(Node):
                 )
                 response.action_response = -1
                 self.get_logger().error(response.action_msg)
-                se;f.state = "ERROR"
+                self.state = "ERROR"
 
                 return response
 
