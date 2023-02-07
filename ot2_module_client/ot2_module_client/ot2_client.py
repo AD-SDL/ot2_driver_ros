@@ -143,6 +143,7 @@ class OT2Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.action_flag = "READY"
+                self.ot2.reset_robot_data()
 
             elif self.state == "COMPLETED":
                 self.state = "COMPLETED"
