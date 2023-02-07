@@ -6,7 +6,7 @@ from typing import List, Tuple
 from pathlib import Path
 from datetime import datetime
 from copy import deepcopy
-from time import sleep
+import time
 
 import rclpy
 from rclpy.node import Node
@@ -22,8 +22,7 @@ import opentrons.simulate
 from opentrons.simulate import format_runlog
 
 import os
-import time
-
+import json
 
 class OT2Client(Node):
 
@@ -106,7 +105,7 @@ class OT2Client(Node):
 
             if self.action_flag.upper() == "READY": #Only refresh the state manualy if robot is not running a job.
                 ID_run = "1" #TODO: Get the actual run ID 
-                self.robot_status = self.ot2.check_run_status(run_id=ID_run)
+                # self.robot_status = self.ot2.check_run_status(run_id=ID_run)
 
                 # self.get_logger().info("Refresh state")
                 self.state_refresher_timer = 0 
@@ -129,44 +128,45 @@ class OT2Client(Node):
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
         try:
-            ID_run = "1" #TODO: Get the actual run ID 
-            self.robot_status = self.ot2.check_run_status(run_id=ID_run)
-            state = self.robot_status 
-            self.get_logger.info("TEST:" + str(state))
+            self.robot_status = self.ot2.get_robot_status().upper()
+            self.get_logger().info("TEST:" + str(self.robot_status))
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "OT2 CONNECTION ERROR"
 
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
-            # TODO: ADD COMPLETED STATE AND HANDLE ACTION_FLAG
 
-            if state == "FAILED" or (self.state == "ERROR" and self.action_flag == "BUSY"):
+            if self.robot_status == "FAILED" or (self.state == "ERROR" and self.action_flag == "BUSY"):
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
                 self.action_flag = "READY"
 
-            elif self.state == "COMPLETED" or state == "SUCCEEDED":
+            elif self.state == "COMPLETED":
                 self.state = "COMPLETED"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
                 self.action_flag = "READY"
 
-            elif state == "RUNNING" or state == "FINISHING":
+            elif self.robot_status == "RUNNING" or self.robot_status == "FINISHING" or self.robot_status == "PAUSED":
                 self.state = "BUSY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif state == "IDLE":
+            elif self.robot_status == "IDLE":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
-
+            else:
+                self.state = "UNKOWN"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().warn(msg.data)
         else: 
             msg = String()
             msg.data = 'State: %s' % self.state
@@ -198,7 +198,7 @@ class OT2Client(Node):
 
         while self.state != "READY":
             self.get_logger().warn("Waiting for OT2 to switch READY state...")
-            sleep(0.5)
+            time.sleep(0.5)
         
         self.action_flag = "BUSY"    
 
@@ -225,8 +225,10 @@ class OT2Client(Node):
 
             # protocol_config = self.manager_vars.get("config", None)
             protocol_config = self.manager_vars.get("config_path", None)
+            resource_config = self.manager_vars.get("resource_path", None)
+            
             if protocol_config:
-                config_file_path = self.download_config(protocol_config)
+                config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
                 payload = deepcopy(self.manager_vars)
                 payload.pop("config_path")
 
@@ -234,7 +236,7 @@ class OT2Client(Node):
                 self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
-                response_flag, response_msg = self.execute(config_file_path, payload)
+                response_flag, response_msg = self.execute(config_file_path, payload, resource_config_path)
 
                 if response_flag == True:
                     self.state == "COMPLETED"
@@ -278,7 +280,7 @@ class OT2Client(Node):
 
         return response
         
-    def download_config(self, protocol_config: str):
+    def download_config_files(self, protocol_config: str, resource_config = None):
         """
         Saves protocol_config string to a local yaml file locaton
 
@@ -292,15 +294,15 @@ class OT2Client(Node):
         config_file_path: str
             Absolute path to generated yaml file
         """
-
         # config_dir_path = '/root/config/temp'
         # config_file_path = config_dir_path + "/pc_document.yaml"
 
         config_dir_path = Path.home().resolve() / ".ot2_temp"
         config_dir_path.mkdir(exist_ok=True, parents=True)
+        time_str = datetime.now().strftime('%Y%m%d-%H%m%s')
         config_file_path = (
             config_dir_path
-            / f"protocol-{datetime.now().strftime('%Y%m%d-%H%m%s')}.yaml"
+            / f"protocol-{time_str}.yaml"
         )
 
         self.get_logger().info(
@@ -309,10 +311,14 @@ class OT2Client(Node):
 
         with open(config_file_path, "w", encoding="utf-8") as pc_file:
             yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
+        if resource_config:
+            resource_file_path = config_dir_path / f"resource-{time_str}.json"
+            json.dump(resource_config, resource_file_path.open("w"))
+            return config_file_path, resource_file_path
+        else:
+            return config_file_path, None
 
-        return config_file_path
-
-    def execute(self, protocol_path, payload=None):
+    def execute(self, protocol_path, payload=None, resource_config = None):
         """
         Compiles the yaml at protocol_path into .py file;
         Transfers and Exececutes the .py file
@@ -335,7 +341,7 @@ class OT2Client(Node):
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload)
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config) #TODO: Pass in resource path 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
