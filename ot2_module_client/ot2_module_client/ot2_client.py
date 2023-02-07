@@ -23,6 +23,8 @@ from opentrons.simulate import format_runlog
 
 import os
 import json
+import traceback
+
 
 class OT2Client(Node):
 
@@ -129,7 +131,6 @@ class OT2Client(Node):
         """The state of the robot, can be ready, completed, busy, error"""
         try:
             self.robot_status = self.ot2.get_robot_status().upper()
-            self.get_logger().info("TEST:" + str(self.robot_status))
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "OT2 CONNECTION ERROR"
@@ -137,7 +138,7 @@ class OT2Client(Node):
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
 
-            if self.robot_status == "FAILED" or (self.state == "ERROR" and self.action_flag == "BUSY"):
+            if self.robot_status == "FAILED" or self.state == "ERROR":
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
@@ -242,7 +243,10 @@ class OT2Client(Node):
                 if response_flag == True:
                     self.state == "COMPLETED"
                     response.action_response = 0
-                    response.action_msg = response_msg
+                    if resource_config_path:
+                        response.action_msg = resource_config_path
+                    else:    
+                        response.action_msg = response_msg
 
                 elif response_flag == False:
                     self.state = "ERROR"
@@ -313,7 +317,7 @@ class OT2Client(Node):
         with open(config_file_path, "w", encoding="utf-8") as pc_file:
             yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
         if resource_config:
-            resource_file_path = config_dir_path / f"resource-{time_str}.json"
+            resource_file_path = config_dir_path / f"resource-{self.node_name}-{time_str}.json"
             json.dump(resource_config, resource_file_path.open("w"))
             return config_file_path, resource_file_path
         else:
@@ -366,7 +370,6 @@ class OT2Client(Node):
         #     self.stateCallback()
 
         except Exception as err:
-            import traceback
 
             if "no route to host" in str(err.args).lower():
                 response_msg = "No route to host error. Ensure that this container \
