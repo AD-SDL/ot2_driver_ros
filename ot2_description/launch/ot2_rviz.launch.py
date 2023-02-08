@@ -14,6 +14,9 @@ def generate_launch_description():
   pkg_share = FindPackageShare(package='ot2_description').find('ot2_description')
   default_rviz_config_path = os.path.join(pkg_share, 'config/ot2_rviz_config.rviz')
   default_urdf_model_path = os.path.join(pkg_share, 'urdf/OT2_module.xacro') 
+
+  ip_list = LaunchConfiguration('ip_list')
+  robot_list = LaunchConfiguration('robot_list')
  
   fake_hardware = LaunchConfiguration('fake_hardware')
   urdf_model = LaunchConfiguration('urdf_model')
@@ -21,6 +24,17 @@ def generate_launch_description():
   use_robot_state_pub = LaunchConfiguration('use_robot_state_pub')
   use_rviz = LaunchConfiguration('use_rviz')
   use_sim_time = LaunchConfiguration('use_sim_time')
+
+
+  declare_use_ip_list_cmd = DeclareLaunchArgument(
+    name='ip_list',
+    default_value="146.137.240.35",
+    description='Flag to accept ip address list')
+
+  declare_use_robot_list_cmd = DeclareLaunchArgument(
+    name='robot_list',
+    default_value="OT2_Alpha",
+    description='Flag to accept robot_name list')
  
   declare_urdf_model_path_cmd = DeclareLaunchArgument(
     name='urdf_model', 
@@ -82,7 +96,12 @@ def generate_launch_description():
     condition=UnlessCondition(fake_hardware),
     package = "ot2_description",
     executable = 'ot2_description_client',
-    name = 'OT2AlphaDescriptionNode',
+    name = 'OT2DescriptionNode',
+    parameters = [
+        {"ip":ip_list},
+        {"robot_list":robot_list},
+        ],
+    emulate_tty = True,
     output = 'screen'
   )
   # Start Real Harware Joint State Publisher Client
@@ -104,7 +123,9 @@ def generate_launch_description():
   ld.add_action(declare_use_robot_state_pub_cmd)  
   ld.add_action(declare_use_rviz_cmd) 
   ld.add_action(declare_use_sim_time_cmd)
- 
+  ld.add_action(declare_use_robot_list_cmd)
+  ld.add_action(declare_use_ip_list_cmd)
+  
   # Add any actions
   ld.add_action(start_joint_state_publisher_fake_hardware_node)
   ld.add_action(start_robot_state_publisher_cmd)

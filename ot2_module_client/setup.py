@@ -16,14 +16,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='kjw',
-    maintainer_email='kojowelbeck2021@u.northwestern.edu',
+    maintainer='Doga Ozgulbas and kjw',
+    maintainer_email='dozgulbas@anl.gov',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ot2Node = ot2_module_client.ot2Node:main'
+            'ot2_client = ot2_module_client.ot2_client:main',
         ],
     },
 )

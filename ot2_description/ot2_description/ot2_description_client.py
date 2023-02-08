@@ -13,14 +13,25 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-# from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS WHEN IT IS READY
+from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver  #TODO: USE THIS WHEN IT IS READY
 
 class OT2DescriptionClient(Node):
 
-    def __init__(self, NODE_NAME = 'OT2DescriptionNode'):
-        super().__init__(NODE_NAME)
+    def __init__(self, TEMP_NODE_NAME = 'OT2DescriptionNode'):
 
-        # self.ot2 = OT2_Driver(OT2_Config(ip=ROBOT_IP))  #TODO: USE THIS WHEN IT IS READY
+
+        super().__init__(TEMP_NODE_NAME)
+        self.node_name = self.get_name()
+
+        self.declare_parameter("ip_list","127.0.0.1")
+        self.declare_parameter("robot_list","OT2_Alpha")
+
+
+        # Receiving the real IP and PORT from the launch parameters
+        self.ip_list =  self.get_parameter("ip_list").get_parameter_value().string_value
+        self.robot_list =  self.get_parameter("robot_list").get_parameter_value().string_value
+
+        self.get_logger().info("Received IP list: " + self.ip_list + " Robot list: " + str(self.robot_list))
 
         timer_period = 0.1  # seconds
 
@@ -28,7 +39,7 @@ class OT2DescriptionClient(Node):
         joint_cb_group = ReentrantCallbackGroup()
         state_cb_group = ReentrantCallbackGroup()
 
-        self.statePub = self.create_publisher(String, NODE_NAME + '/state',10)
+        self.statePub = self.create_publisher(String, self.node_name + '/state',10)
         # self.stateTimer = self.create_timer(timer_period, callback = self.stateCallback, callback_group = state_cb_group)
 
         self.joint_publisher = self.create_publisher(JointState,'joint_states', 10, callback_group = joint_cb_group)
@@ -49,12 +60,15 @@ class OT2DescriptionClient(Node):
     def joint_state_publisher_callback(self):
         
         # self.get_logger().info("BUGG")
-        # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY
+        # joint_states = self.ot2.refresh_joint_state() #TODO: USE THIS WHEN IT IS READY 
+        # TODO: Check Robot list and laucnh only available robots
+        # TODO: Check Robot locations from Launch parameters and spawn the robots 
+        
         joint_states = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         ot2_joint_msg = JointState()
         ot2_joint_msg.header = Header()
         ot2_joint_msg.header.stamp = self.get_clock().now().to_msg()
-        ot2_joint_msg.name = ['OT2_1_Pipette_Joint1_alpha', 'OT2_1_Pipette_Joint2_alpha', 'OT2_1_Single_Pipette_alpha', 'OT2_1_8_Channel_Pipette_alpha', 'OT2_1_Pipette_Joint1_betha','OT2_1_Pipette_Joint2_betha', 'OT2_1_Single_Pipette_betha', 'OT2_1_8_Channel_Pipette_betha','OT2_1_Pipette_Joint1_gamma','OT2_1_Pipette_Joint2_gamma', 'OT2_1_Single_Pipette_gamma', 'OT2_1_8_Channel_Pipette_gamma']
+        ot2_joint_msg.name = ['OT2_Alpha_Pipette_Joint1', 'OT2_Alpha_Pipette_Joint2', 'OT2_Alpha_Single_Pipette', 'OT2_Alpha_8_Channel_Pipette', 'OT2_Betha_Pipette_Joint1','OT2_Betha_Pipette_Joint2', 'OT2_Betha_Single_Pipette', 'OT2_Betha_8_Channel_Pipette','OT2_Gamma_Pipette_Joint1','OT2_Gamma_Pipette_Joint2', 'OT2_Gamma_Single_Pipette', 'OT2_Gamma_8_Channel_Pipette']
         ot2_joint_msg.position = joint_states
         # print(joint_states)
 
