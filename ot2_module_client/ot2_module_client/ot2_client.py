@@ -241,7 +241,7 @@ class OT2Client(Node):
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
                 response_flag, response_msg = self.execute(config_file_path, payload, resource_config_path)
-
+                self.get_logger().warn(str("HEREE" + str(response_flag) + str(response_msg)))
                 if response_flag == True:
                     self.state == "COMPLETED"
                     response.action_response = 0
@@ -358,6 +358,7 @@ class OT2Client(Node):
             self.get_logger().warn(str(resp))
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
+                self.get_logger().warn(str("HEREE"))
                 response_msg = "Execute successful"
                 return True, response_msg
 
