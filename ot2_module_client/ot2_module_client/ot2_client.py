@@ -360,17 +360,17 @@ class OT2Client(Node):
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
-            self.get_logger().info("Transfer sucessful")
+            self.get_logger().info("OT2 " + self.node_name + " protocol transfer sucessful")
             resp = self.ot2.execute(self.run_id)
-            self.get_logger().info("OT2 execution completed")
+            self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
 
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
-                response_msg = "OT2 run protocol successfully completed"
+                response_msg = "OT2 "+ self.node_name +" successfully completed running a protocol"
                 return True, response_msg
 
             else: 
-                response_msg = "OT2 run protocol failed"
+                response_msg = "OT2 "+ self.node_name +" failed running a protocol"
                 return False, response_msg
 
         # except FileNotFoundError:
