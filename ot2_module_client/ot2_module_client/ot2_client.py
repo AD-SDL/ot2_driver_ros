@@ -257,9 +257,7 @@ class OT2Client(Node):
                     response.resources = resource_config_path
                     self.get_logger().warn(str("There" + str(response_flag) + str(response_msg)))
 
-                self.get_logger().info("Finished Action: " + request.action_handle)
-
-                return response
+   
 
             else:
                 response.action_msg = (
@@ -269,8 +267,9 @@ class OT2Client(Node):
                 self.get_logger().error(response.action_msg)
                 self.state = "ERROR"
 
-                return response
-
+            self.get_logger().info("Finished Action: " + request.action_handle)
+            return response
+            
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
         can preform as well as deliver essential information required by the master node.
