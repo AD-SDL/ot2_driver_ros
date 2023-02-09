@@ -130,7 +130,8 @@ class OT2Client(Node):
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
         try:
-            self.robot_status = self.ot2.get_robot_status()
+            self.robot_status = self.ot2.get_robot_status().upper()
+            # self.get_logger().info(str(self.robot_status))
      
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
@@ -139,7 +140,7 @@ class OT2Client(Node):
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
 
-            if self.robot_status == "FAILED" or self.state == "ERROR":
+            if self.robot_status == "FAILED" or (self.state == "ERROR" and self.action_flag == "BUSY"):
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
