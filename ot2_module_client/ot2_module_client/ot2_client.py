@@ -161,7 +161,7 @@ class OT2Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif self.robot_status == "IDLE" and self.action_flag == "READY":
+            elif self.robot_status == "IDLE":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
