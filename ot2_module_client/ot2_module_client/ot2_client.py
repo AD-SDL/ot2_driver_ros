@@ -276,7 +276,7 @@ class OT2Client(Node):
             self.state = "COMPLETED"
 
             return response
-            
+
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
         can preform as well as deliver essential information required by the master node.
@@ -362,15 +362,15 @@ class OT2Client(Node):
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
             self.get_logger().info("Transfer sucessful")
             resp = self.ot2.execute(self.run_id)
-            self.get_logger().info("Execute successful")
+            self.get_logger().info("OT2 execution completed")
 
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
-                response_msg = "Execute successful"
+                response_msg = "OT2 run protocol successfully completed"
                 return True, response_msg
 
             else: 
-                response_msg = "Excution failed"
+                response_msg = "OT2 run protocol failed"
                 return False, response_msg
 
         # except FileNotFoundError:
