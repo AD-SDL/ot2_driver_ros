@@ -360,7 +360,7 @@ class OT2Client(Node):
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
-            self.get_logger().info("OT2 " + self.node_name + " protocol transfer sucessful")
+            self.get_logger().info("OT2 " + self.node_name + " protocol transfer successful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
 
