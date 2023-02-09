@@ -268,7 +268,15 @@ class OT2Client(Node):
                 self.state = "ERROR"
 
                 return response
+        else:
+            msg = "UNKOWN ACTION REQUEST! Available actions: run_protocol"
+            response.action_response = -1
+            response.action_msg= msg
+            self.get_logger().error('Error: ' + msg)
+            self.state = "COMPLETED"
 
+            return response
+            
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
         can preform as well as deliver essential information required by the master node.
@@ -355,10 +363,9 @@ class OT2Client(Node):
             self.get_logger().info("Transfer sucessful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("Execute successful")
-            self.get_logger().warn(str(resp))
+
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
-                self.get_logger().warn(str("HEREE"))
                 response_msg = "Execute successful"
                 return True, response_msg
 
