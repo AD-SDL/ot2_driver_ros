@@ -241,8 +241,9 @@ class OT2Client(Node):
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
                 response_flag, response_msg = self.execute(config_file_path, payload, resource_config_path)
-                self.get_logger().warn(str("HEREE" + str(response_flag) + str(response_msg)))
+                
                 if response_flag == True:
+                    self.get_logger().warn(str("HEREE" + str(response_flag) + str(response_msg)))
                     self.state == "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
@@ -254,6 +255,7 @@ class OT2Client(Node):
                     response.action_response = -1
                     response.action_msg = response_msg
                     response.resources = resource_config_path
+                    self.get_logger().warn(str("There" + str(response_flag) + str(response_msg)))
 
                 self.get_logger().info("Finished Action: " + request.action_handle)
 
