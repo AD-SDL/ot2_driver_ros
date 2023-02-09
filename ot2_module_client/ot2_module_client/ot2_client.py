@@ -355,7 +355,7 @@ class OT2Client(Node):
             self.get_logger().info("Transfer sucessful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("Execute successful")
-            self.get_logger().warn(resp)
+            self.get_logger().warn(str(resp))
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
                 response_msg = "Execute successful"
