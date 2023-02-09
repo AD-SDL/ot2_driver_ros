@@ -148,7 +148,7 @@ class OT2Client(Node):
                 self.action_flag = "READY"
                 self.ot2.reset_robot_data()
 
-            elif self.state == "COMPLETED":
+            elif self.state == "COMPLETED" and self.action_flag == "BUSY":
                 self.state = "COMPLETED"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
@@ -161,7 +161,7 @@ class OT2Client(Node):
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
 
-            elif self.robot_status == "IDLE":
+            elif self.robot_status == "IDLE" and self.action_flag == "READY":
                 self.state = "READY"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
