@@ -233,7 +233,7 @@ class OT2Client(Node):
 
             if eval(resource_file_flag):
                 list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/.json') #Get list of files
-                resource_config = max(list_of_files, key=os.path.getctime) #Finding latest added file
+                resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
                 self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
 
             if protocol_config:
