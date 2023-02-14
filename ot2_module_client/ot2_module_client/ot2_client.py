@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 """OT2 Node"""
-
+import os
+import glob
+import json
+import traceback
 import yaml
 from typing import List, Tuple
 from pathlib import Path
@@ -10,7 +13,6 @@ import time
 
 import rclpy
 from rclpy.node import Node
-
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 
@@ -21,9 +23,7 @@ from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver
 import opentrons.simulate
 from opentrons.simulate import format_runlog
 
-import os
-import json
-import traceback
+
 
 
 class OT2Client(Node):
@@ -67,19 +67,12 @@ class OT2Client(Node):
         state_cb_group = ReentrantCallbackGroup()
         self.timer_period = 1  # seconds
 
-        ## Creating state Msg as a instance variable
-        # self.stateMsg = String()
-        # self.state = "READY"  ## If we get here without error, the client is initialized
-        # self.stateMsg.data = "State %s" % self.state
-
         # Publisher for ot2 state
         self.statePub = self.create_publisher(String, self.node_name + "/ot2_state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
       
-        # self.StateRefresherTimer = self.create_timer(self.timer_period + 0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
-
         # Control and discovery services
         self.actionSrv = self.create_service(
             WeiActions, self.node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group
@@ -99,39 +92,12 @@ class OT2Client(Node):
         else:
             self.get_logger().info(str(self.node_name) + " online")
 
-    def robot_state_refresher_callback(self):
-        "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
-        try:
-            # TODO: FIX the bug: When Action call and refresh state callback function is executed at the same time action call is being ignored.
-            # Refresh state callback runs "update state" functions while action_callback is running transfer and Network socket losses data when multiple commands were sent 
-
-            if self.action_flag.upper() == "READY": #Only refresh the state manualy if robot is not running a job.
-                ID_run = "1" #TODO: Get the actual run ID 
-                # self.robot_status = self.ot2.check_run_status(run_id=ID_run)
-
-                # self.get_logger().info("Refresh state")
-                self.state_refresher_timer = 0 
-
-            """Below won't work for OT2 since it can run for hours it will stay in the same movement state for a long time. 
-                TODO: Find another solition to recover frozen robot"""       
-            # if self.past_robot_status == self.robot_status:
-            #     self.state_refresher_timer += 1
-            # elif self.past_robot_status != self.robot_status:
-            #     self.past_robot_status = self.robot_status
-            #     self.state_refresher_timer = 0 
-            # if self.state_refresher_timer > 180: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
-            #     # self.get_logger().info("Refresh state, robot state is frozen...")
-            #     self.action_flag = "READY"
-
-        except Exception as err:
-            # self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error(str(err))
-
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
         try:
-            self.robot_status = self.ot2.get_robot_status()
-            self.robot_status = self.robot_status.upper()
+            self.robot_status = self.ot2.get_robot_status().upper()
+            # self.get_logger().info(str(self.robot_status))
+     
         except Exception as err:
             self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
             self.state = "OT2 CONNECTION ERROR"
@@ -139,7 +105,7 @@ class OT2Client(Node):
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
 
-            if self.robot_status == "FAILED" or self.state == "ERROR":
+            if self.robot_status == "FAILED" or (self.state == "ERROR" and self.action_flag == "BUSY"):
                 self.state = "ERROR"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
@@ -147,7 +113,7 @@ class OT2Client(Node):
                 self.action_flag = "READY"
                 self.ot2.reset_robot_data()
 
-            elif self.state == "COMPLETED":
+            elif self.state == "COMPLETED" and self.action_flag == "BUSY":
                 self.state = "COMPLETED"
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
@@ -205,57 +171,48 @@ class OT2Client(Node):
         
         self.action_flag = "BUSY"    
 
-        self.manager_command = request.action_handle
-        self.manager_vars = eval(request.vars)
+        self.action_command = request.action_handle
+        self.action_vars = eval(request.vars)
 
-        self.get_logger().info(f"In action callback, command: {self.manager_command}")
+        self.get_logger().info(f"In action callback, command: {self.action_command}")
 
-        # if "execute" == self.manager_command:
+        if "run_protocol" == self.action_command:
 
-        #     protocol_config = self.manager_vars.get("config", None)
-        #     if protocol_config:
-        #         payload = self.manager_vars.get("payload", None)
-        #         self.get_logger().info(f"{self.manager_vars=}")
-        #         self.get_logger().info(f"ot2 {payload=}")
-        #         config_file_path = self.download_config(protocol_config)
-        #         response = self.execute(config_file_path, payload)
-        #     else:
-        #         self.get_logger().error("Required 'config' was not specified in request.vars")
+            protocol_config = self.action_vars.get("config_path", None)
+            resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
+            resource_file_flag = self.action_vars.get("use_existing_resources", None) #Returns True to use a resource file or False to not use a resource file. 
 
-        ## Actual API
+            if eval(resource_file_flag):
+                list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/.json') #Get list of files
+                resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
+                self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
 
-        if "run_protocol" == self.manager_command:
-
-            # protocol_config = self.manager_vars.get("config", None)
-            protocol_config = self.manager_vars.get("config_path", None)
-            resource_config = self.manager_vars.get("resource_path", None)
-            
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
-                payload = deepcopy(self.manager_vars)
+                payload = deepcopy(self.action_vars)
                 payload.pop("config_path")
 
-                self.get_logger().info(f"{self.manager_vars=}")
+                self.get_logger().info(f"{self.action_vars=}")
                 self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
                 response_flag, response_msg = self.execute(config_file_path, payload, resource_config_path)
-
+                
                 if response_flag == True:
-                    self.state == "COMPLETED"
+                    self.state = "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
-                    response.resources = resource_config_path
-            
+                    if resource_config_path:
+                        response.resources = resource_config_path
 
                 elif response_flag == False:
                     self.state = "ERROR"
                     response.action_response = -1
                     response.action_msg = response_msg
-                    response.resources = resource_config_path
+                    if resource_config_path:
+                        response.resources = resource_config_path
 
                 self.get_logger().info("Finished Action: " + request.action_handle)
-
                 return response
 
             else:
@@ -267,6 +224,14 @@ class OT2Client(Node):
                 self.state = "ERROR"
 
                 return response
+        else:
+            msg = "UNKOWN ACTION REQUEST! Available actions: run_protocol"
+            response.action_response = -1
+            response.action_msg= msg
+            self.get_logger().error('Error: ' + msg)
+            self.state = "COMPLETED"
+
+            return response
 
     def descriptionCallback(self, request, response):
         """The descriptionCallback function is a service that can be called to showcase the available actions a robot
@@ -300,8 +265,6 @@ class OT2Client(Node):
         config_file_path: str
             Absolute path to generated yaml file
         """
-        # config_dir_path = '/root/config/temp'
-        # config_file_path = config_dir_path + "/pc_document.yaml"
 
         config_dir_path = Path.home().resolve() / ".ot2_temp"
         config_dir_path.mkdir(exist_ok=True, parents=True)
@@ -340,9 +303,6 @@ class OT2Client(Node):
             If the ot2 execution was successful
         """
 
-        ## TODO Should first check that the ot2/node is not in process
-        ## TODO must check for /IDLE/AVAILABLE or COMPLETED state
-
         try:
             (
                 self.protocol_file_path,
@@ -351,16 +311,17 @@ class OT2Client(Node):
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
-            self.get_logger().info("Transfer sucessful")
+            self.get_logger().info("OT2 " + self.node_name + " protocol transfer successful")
             resp = self.ot2.execute(self.run_id)
-            self.get_logger().info("Execute successful")
+            self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
+
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
-                response_msg = "Execute successful"
+                response_msg = "OT2 "+ self.node_name +" successfully completed running a protocol"
                 return True, response_msg
 
             else: 
-                response_msg = "Excution failed"
+                response_msg = "OT2 "+ self.node_name +" failed running a protocol"
                 return False, response_msg
 
         # except FileNotFoundError:
