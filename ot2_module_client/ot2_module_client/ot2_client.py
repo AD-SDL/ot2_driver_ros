@@ -67,19 +67,12 @@ class OT2Client(Node):
         state_cb_group = ReentrantCallbackGroup()
         self.timer_period = 1  # seconds
 
-        ## Creating state Msg as a instance variable
-        # self.stateMsg = String()
-        # self.state = "READY"  ## If we get here without error, the client is initialized
-        # self.stateMsg.data = "State %s" % self.state
-
         # Publisher for ot2 state
         self.statePub = self.create_publisher(String, self.node_name + "/ot2_state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
       
-        # self.StateRefresherTimer = self.create_timer(self.timer_period + 0.1, callback = self.robot_state_refresher_callback, callback_group = state_refresher_cb_group)
-
         # Control and discovery services
         self.actionSrv = self.create_service(
             WeiActions, self.node_name + "/action_handler", self.actionCallback, callback_group = action_cb_group
@@ -98,34 +91,6 @@ class OT2Client(Node):
 
         else:
             self.get_logger().info(str(self.node_name) + " online")
-
-    def robot_state_refresher_callback(self):
-        "Refreshes the robot states if robot cannot update the state parameters automatically because it is not running any jobs"
-        try:
-            # TODO: FIX the bug: When Action call and refresh state callback function is executed at the same time action call is being ignored.
-            # Refresh state callback runs "update state" functions while action_callback is running transfer and Network socket losses data when multiple commands were sent 
-
-            if self.action_flag.upper() == "READY": #Only refresh the state manualy if robot is not running a job.
-                ID_run = "1" #TODO: Get the actual run ID 
-                # self.robot_status = self.ot2.check_run_status(run_id=ID_run)
-
-                # self.get_logger().info("Refresh state")
-                self.state_refresher_timer = 0 
-
-            """Below won't work for OT2 since it can run for hours it will stay in the same movement state for a long time. 
-                TODO: Find another solition to recover frozen robot"""       
-            # if self.past_robot_status == self.robot_status:
-            #     self.state_refresher_timer += 1
-            # elif self.past_robot_status != self.robot_status:
-            #     self.past_robot_status = self.robot_status
-            #     self.state_refresher_timer = 0 
-            # if self.state_refresher_timer > 180: # Refresh the state if robot has been stuck at a status for more than 25 refresh times.
-            #     # self.get_logger().info("Refresh state, robot state is frozen...")
-            #     self.action_flag = "READY"
-
-        except Exception as err:
-            # self.state = "PF400 CONNECTION ERROR"
-            self.get_logger().error(str(err))
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
@@ -210,20 +175,6 @@ class OT2Client(Node):
         self.action_vars = eval(request.vars)
 
         self.get_logger().info(f"In action callback, command: {self.action_command}")
-
-        # if "execute" == self.action_command:
-
-        #     protocol_config = self.action_vars.get("config", None)
-        #     if protocol_config:
-        #         payload = self.action_vars.get("payload", None)
-        #         self.get_logger().info(f"{self.action_vars=}")
-        #         self.get_logger().info(f"ot2 {payload=}")
-        #         config_file_path = self.download_config(protocol_config)
-        #         response = self.execute(config_file_path, payload)
-        #     else:
-        #         self.get_logger().error("Required 'config' was not specified in request.vars")
-
-        ## Actual API
 
         if "run_protocol" == self.action_command:
 
@@ -314,8 +265,6 @@ class OT2Client(Node):
         config_file_path: str
             Absolute path to generated yaml file
         """
-        # config_dir_path = '/root/config/temp'
-        # config_file_path = config_dir_path + "/pc_document.yaml"
 
         config_dir_path = Path.home().resolve() / ".ot2_temp"
         config_dir_path.mkdir(exist_ok=True, parents=True)
