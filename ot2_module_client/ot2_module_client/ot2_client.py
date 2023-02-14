@@ -350,7 +350,6 @@ class OT2Client(Node):
         """
 
         ## TODO Should first check that the ot2/node is not in process
-        ## TODO must check for /IDLE/AVAILABLE or COMPLETED state
 
         try:
             (
