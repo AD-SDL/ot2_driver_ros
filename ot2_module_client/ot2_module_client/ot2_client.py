@@ -228,15 +228,14 @@ class OT2Client(Node):
         if "run_protocol" == self.action_command:
 
             protocol_config = self.action_vars.get("config_path", None)
-            # resource_config = self.action_vars.get("resource_path", None) TODO: This will be enbaled in the future 
+            resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
             resource_file_flag = self.action_vars.get("use_existing_resources", None) #Returns True to use a resource file or False to not use a resource file. 
 
             if eval(resource_file_flag):
+                list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/.json') #Get list of files
+                resource_config = max(list_of_files, key=os.path.getctime) #Finding latest added file
+                self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
 
-
-                list_of_files = glob.glob('/path/to/folder/*') # * means all if need specific format then *.csv
-                latest_file = max(list_of_files, key=os.path.getctime)
-                print(latest_file)
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
                 payload = deepcopy(self.action_vars)
