@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 """OT2 Node"""
-
+import os
+import glob
+import json
+import traceback
 import yaml
 from typing import List, Tuple
 from pathlib import Path
@@ -10,7 +13,6 @@ import time
 
 import rclpy
 from rclpy.node import Node
-
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 
@@ -21,9 +23,7 @@ from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver
 import opentrons.simulate
 from opentrons.simulate import format_runlog
 
-import os
-import json
-import traceback
+
 
 
 class OT2Client(Node):
@@ -206,17 +206,17 @@ class OT2Client(Node):
         
         self.action_flag = "BUSY"    
 
-        self.manager_command = request.action_handle
-        self.manager_vars = eval(request.vars)
+        self.action_command = request.action_handle
+        self.action_vars = eval(request.vars)
 
-        self.get_logger().info(f"In action callback, command: {self.manager_command}")
+        self.get_logger().info(f"In action callback, command: {self.action_command}")
 
-        # if "execute" == self.manager_command:
+        # if "execute" == self.action_command:
 
-        #     protocol_config = self.manager_vars.get("config", None)
+        #     protocol_config = self.action_vars.get("config", None)
         #     if protocol_config:
-        #         payload = self.manager_vars.get("payload", None)
-        #         self.get_logger().info(f"{self.manager_vars=}")
+        #         payload = self.action_vars.get("payload", None)
+        #         self.get_logger().info(f"{self.action_vars=}")
         #         self.get_logger().info(f"ot2 {payload=}")
         #         config_file_path = self.download_config(protocol_config)
         #         response = self.execute(config_file_path, payload)
@@ -225,18 +225,24 @@ class OT2Client(Node):
 
         ## Actual API
 
-        if "run_protocol" == self.manager_command:
+        if "run_protocol" == self.action_command:
 
-            # protocol_config = self.manager_vars.get("config", None)
-            protocol_config = self.manager_vars.get("config_path", None)
-            resource_config = self.manager_vars.get("resource_path", None)
-            
+            protocol_config = self.action_vars.get("config_path", None)
+            # resource_config = self.action_vars.get("resource_path", None) TODO: This will be enbaled in the future 
+            resource_file_flag = self.action_vars.get("use_existing_resources", None) #Returns True to use a resource file or False to not use a resource file. 
+
+            if eval(resource_file_flag):
+
+
+                list_of_files = glob.glob('/path/to/folder/*') # * means all if need specific format then *.csv
+                latest_file = max(list_of_files, key=os.path.getctime)
+                print(latest_file)
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
-                payload = deepcopy(self.manager_vars)
+                payload = deepcopy(self.action_vars)
                 payload.pop("config_path")
 
-                self.get_logger().info(f"{self.manager_vars=}")
+                self.get_logger().info(f"{self.action_vars=}")
                 self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
@@ -348,8 +354,6 @@ class OT2Client(Node):
         response: bool
             If the ot2 execution was successful
         """
-
-        ## TODO Should first check that the ot2/node is not in process
 
         try:
             (
