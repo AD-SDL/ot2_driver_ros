@@ -181,7 +181,7 @@ class OT2Client(Node):
             protocol_config = self.action_vars.get("config_path", None)
             resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
             resource_file_flag = self.action_vars.get("use_existing_resources", "False") #Returns True to use a resource file or False to not use a resource file. 
-
+            
             if eval(resource_file_flag):
                 try:
                     list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/*.json') #Get list of files
