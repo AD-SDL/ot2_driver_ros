@@ -180,13 +180,16 @@ class OT2Client(Node):
 
             protocol_config = self.action_vars.get("config_path", None)
             resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
-            resource_file_flag = self.action_vars.get("use_existing_resources", None) #Returns True to use a resource file or False to not use a resource file. 
+            resource_file_flag = self.action_vars.get("use_existing_resources", "False") #Returns True to use a resource file or False to not use a resource file. 
 
-            if resource_file_flag:
-                if eval(resource_file_flag):
-                    list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/.json') #Get list of files
+
+            if eval(resource_file_flag):
+                try:
+                    list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/*.json') #Get list of files
                     resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
-                    self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
+                except Exception as err:
+                    self.get_logger().err(err)
+                self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
 
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
