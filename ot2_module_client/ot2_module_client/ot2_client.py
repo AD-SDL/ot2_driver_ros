@@ -185,19 +185,19 @@ class OT2Client(Node):
 
             if resource_file_flag:
                 try:
-                    list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/*.json') #Get list of files
+                    list_of_files = glob.glob('/home/rpl/wei_ws/*.json') #Get list of files
                     resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
                 except Exception as er:
                     self.get_logger().error(er)
                 else:
-                    self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
+                    self.get_logger().info(resource_config)
 
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
                 payload = deepcopy(self.action_vars)
                 payload.pop("config_path")
 
-                self.get_logger().info(self.node_name + " Payload = " + payload)
+                self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
                 response_flag, response_msg = self.execute(config_file_path, payload, resource_config_path)
@@ -206,8 +206,10 @@ class OT2Client(Node):
                     self.state = "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
+                    print("www", resource_config_path)
                     if resource_config_path:
                         response.resources = resource_config_path
+                        print(response.resources)
 
                 elif response_flag == False:
                     self.state = "ERROR"
@@ -286,7 +288,9 @@ class OT2Client(Node):
             yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
         if resource_config:
             resource_file_path = config_dir_path / f"resource-{self.node_name}-{time_str}.json"
-            json.dump(resource_config, resource_file_path.open("w"))
+            with open(resource_config) as resource_content:
+                content = json.load(resource_content)
+            json.dump(content, resource_file_path.open("w"))
             return config_file_path, resource_file_path
         else:
             return config_file_path, None
