@@ -173,6 +173,7 @@ class OT2Client(Node):
 
         self.action_command = request.action_handle
         self.action_vars = eval(request.vars)
+        self.get_logger().info(f"{self.action_vars=}")
 
         self.get_logger().info(f"In action callback, command: {self.action_command}")
 
@@ -196,7 +197,6 @@ class OT2Client(Node):
                 payload = deepcopy(self.action_vars)
                 payload.pop("config_path")
 
-                self.get_logger().info(f"{self.action_vars=}")
                 self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
