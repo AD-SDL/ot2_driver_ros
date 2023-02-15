@@ -197,7 +197,7 @@ class OT2Client(Node):
                 payload = deepcopy(self.action_vars)
                 payload.pop("config_path")
 
-                self.get_logger().info(f"ot2 {payload=}")
+                self.get_logger().info(self.node_name + " Payload = " + payload)
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
                 response_flag, response_msg = self.execute(config_file_path, payload, resource_config_path)
