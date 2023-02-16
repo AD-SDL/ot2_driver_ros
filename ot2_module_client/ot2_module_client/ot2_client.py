@@ -207,10 +207,14 @@ class OT2Client(Node):
                     self.state = "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
-                    print("www", resource_config_path)
+                    # print("Test: ", resource_config_path)
                     if resource_config_path:
-                        response.resources = resource_config_path
-                        print(response.resources)
+                        # TODO: Error here
+                        try:
+                            response.resources = str(resource_config_path)
+                            print(response.resources)
+                        except Exception as err:
+                            self.get_logger().error(err)
 
                 elif response_flag == False:
                     self.state = "ERROR"
