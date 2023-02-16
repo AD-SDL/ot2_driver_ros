@@ -144,7 +144,7 @@ class OT2Client(Node):
             self.get_logger().warn("Trying to connect again! IP: " + self.ip)
             self.connect_robot()
 
-    async def actionCallback(self, request, response):
+    def actionCallback(self, request, response):
 
         """The actions the robot can perform, also performs them
         Parameters:
