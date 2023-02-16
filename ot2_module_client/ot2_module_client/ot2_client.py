@@ -185,12 +185,13 @@ class OT2Client(Node):
 
             if resource_file_flag:
                 try:
-                    list_of_files = glob.glob('/home/rpl/wei_ws/*.json') #Get list of files
+                    #TODO: OT2 Driver saves the resource files in the directory where the code was executed. Resource files need to be stored in a spesific directory.
+                    list_of_files = glob.glob('/home/rpl/wei_ws/*.json') #Get list of files 
                     resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
                 except Exception as er:
                     self.get_logger().error(er)
                 else:
-                    self.get_logger().info(resource_config)
+                    self.get_logger().info("Using the resource file: " + resource_config)
 
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
