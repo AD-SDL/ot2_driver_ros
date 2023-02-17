@@ -303,11 +303,13 @@ class OT2Client(Node):
             If the ot2 execution was successful
         """
 
+        resource_path = '/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/'
+
         try:
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = resource_path) #TODO: Pass in resource path 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
