@@ -51,6 +51,8 @@ class OT2Client(Node):
         self.past_robot_status = ""
         self.state_refresher_timer = 0
 
+        self.resource_folder_path = '/home/rpl/.ot2_temp/resources/'
+
         self.connect_robot()
 
         self.description = {
@@ -110,6 +112,7 @@ class OT2Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
+                self.get_logger().error(self.ot2.get_robot_status())
                 self.action_flag = "READY"
                 self.ot2.reset_robot_data()
 
@@ -186,7 +189,7 @@ class OT2Client(Node):
             if resource_file_flag:
                 try:
                     #TODO: OT2 Driver saves the resource files in the directory where the code was executed. Resource files need to be stored in a spesific directory.
-                    list_of_files = glob.glob('/home/rpl/wei_ws/*.json') #Get list of files 
+                    list_of_files = glob.glob(self.resource_folder_path + '*.json') #Get list of files 
                     resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
                 except Exception as er:
                     self.get_logger().error(er)
@@ -216,7 +219,7 @@ class OT2Client(Node):
                     response.action_response = -1
                     response.action_msg = response_msg
                     if resource_config_path:
-                        response.resources = resource_config_path
+                        response.resources = str(resource_config_path)
 
                 self.get_logger().info("Finished Action: " + request.action_handle)
                 return response
@@ -311,19 +314,19 @@ class OT2Client(Node):
             If the ot2 execution was successful
         """
 
-        resource_path = '/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/'
 
         try:
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = resource_path) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resource_folder_path) #TODO: Pass in resource path 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
             self.get_logger().info("OT2 " + self.node_name + " protocol transfer successful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
+            self.get_logger().warn(str(resp))
 
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
