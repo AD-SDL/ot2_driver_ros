@@ -210,7 +210,6 @@ class OT2Client(Node):
                     self.state = "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
-                    print("Test: ", resource_config_path)
                     if resource_config_path:
                         response.resources = str(resource_config_path)
 
