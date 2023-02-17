@@ -207,14 +207,9 @@ class OT2Client(Node):
                     self.state = "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
-                    # print("Test: ", resource_config_path)
+                    print("Test: ", resource_config_path)
                     if resource_config_path:
-                        # TODO: Error here
-                        try:
-                            response.resources = str(resource_config_path)
-                            print(response.resources)
-                        except Exception as err:
-                            self.get_logger().error(err)
+                        response.resources = str(resource_config_path)
 
                 elif response_flag == False:
                     self.state = "ERROR"
@@ -320,7 +315,7 @@ class OT2Client(Node):
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_files_directory = /home/rpl/temp/) #TODO: Pass in resource path 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
