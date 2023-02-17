@@ -317,11 +317,7 @@ class OT2Client(Node):
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-<<<<<<< HEAD
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_files_directory = "/home/rpl/temp/") #TODO: Pass in resource path 
-=======
             ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = resource_path) #TODO: Pass in resource path 
->>>>>>> 977923a408b42bac39d180eab1427d6368dc9dc4
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
