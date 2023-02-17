@@ -51,6 +51,8 @@ class OT2Client(Node):
         self.past_robot_status = ""
         self.state_refresher_timer = 0
 
+        self.resource_folder_path = '/home/rpl/.ot2_temp/resources/'
+
         self.connect_robot()
 
         self.description = {
@@ -110,6 +112,7 @@ class OT2Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().error(msg.data)
+                self.get_logger().error(self.ot2.get_robot_status())
                 self.action_flag = "READY"
                 self.ot2.reset_robot_data()
 
@@ -144,7 +147,7 @@ class OT2Client(Node):
             self.get_logger().warn("Trying to connect again! IP: " + self.ip)
             self.connect_robot()
 
-    async def actionCallback(self, request, response):
+    def actionCallback(self, request, response):
 
         """The actions the robot can perform, also performs them
         Parameters:
@@ -173,6 +176,7 @@ class OT2Client(Node):
 
         self.action_command = request.action_handle
         self.action_vars = eval(request.vars)
+        self.get_logger().info(f"{self.action_vars=}")
 
         self.get_logger().info(f"In action callback, command: {self.action_command}")
 
@@ -180,19 +184,23 @@ class OT2Client(Node):
 
             protocol_config = self.action_vars.get("config_path", None)
             resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
-            resource_file_flag = self.action_vars.get("use_existing_resources", None) #Returns True to use a resource file or False to not use a resource file. 
+            resource_file_flag = self.action_vars.get("use_existing_resources", "False") #Returns True to use a resource file or False to not use a resource file. 
 
-            if resource_file_flag is not None and eval(resource_file_flag):
-                list_of_files = glob.glob('/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/.json') #Get list of files
-                resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
-                self.get_logger().info("Resource file will be used. Path: ", str(resource_config))
+            if resource_file_flag:
+                try:
+                    #TODO: OT2 Driver saves the resource files in the directory where the code was executed. Resource files need to be stored in a spesific directory.
+                    list_of_files = glob.glob(self.resource_folder_path + '*.json') #Get list of files 
+                    resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
+                except Exception as er:
+                    self.get_logger().error(er)
+                else:
+                    self.get_logger().info("Using the resource file: " + resource_config)
 
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
                 payload = deepcopy(self.action_vars)
                 payload.pop("config_path")
 
-                self.get_logger().info(f"{self.action_vars=}")
                 self.get_logger().info(f"ot2 {payload=}")
                 self.get_logger().info(f"config_file_path: {config_file_path}")
 
@@ -203,14 +211,14 @@ class OT2Client(Node):
                     response.action_response = 0
                     response.action_msg = response_msg
                     if resource_config_path:
-                        response.resources = resource_config_path
+                        response.resources = str(resource_config_path)
 
                 elif response_flag == False:
                     self.state = "ERROR"
                     response.action_response = -1
                     response.action_msg = response_msg
                     if resource_config_path:
-                        response.resources = resource_config_path
+                        response.resources = str(resource_config_path)
 
                 self.get_logger().info("Finished Action: " + request.action_handle)
                 return response
@@ -282,7 +290,9 @@ class OT2Client(Node):
             yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
         if resource_config:
             resource_file_path = config_dir_path / f"resource-{self.node_name}-{time_str}.json"
-            json.dump(resource_config, resource_file_path.open("w"))
+            with open(resource_config) as resource_content:
+                content = json.load(resource_content)
+            json.dump(content, resource_file_path.open("w"))
             return config_file_path, resource_file_path
         else:
             return config_file_path, None
@@ -303,19 +313,19 @@ class OT2Client(Node):
             If the ot2 execution was successful
         """
 
-        resource_path = '/home/rpl/wei_ws/demo/rpl_workcell/pcr_workcell/'
 
         try:
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = resource_path) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resource_folder_path) #TODO: Pass in resource path 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
             self.get_logger().info("OT2 " + self.node_name + " protocol transfer successful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
+            self.get_logger().warn(str(resp))
 
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
