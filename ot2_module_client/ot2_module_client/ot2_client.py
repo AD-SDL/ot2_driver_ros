@@ -51,7 +51,7 @@ class OT2Client(Node):
         self.past_robot_status = ""
         self.state_refresher_timer = 0
 
-        self.resource_folder_path = '/home/rpl/.ot2_temp/resources/'
+        self.resources_folder_path = '/home/rpl/.ot2_temp/resources/' + self.node_name + '/'
 
         self.connect_robot()
 
@@ -189,7 +189,7 @@ class OT2Client(Node):
             if resource_file_flag:
                 try:
                     #TODO: OT2 Driver saves the resource files in the directory where the code was executed. Resource files need to be stored in a spesific directory.
-                    list_of_files = glob.glob(self.resource_folder_path + '*.json') #Get list of files 
+                    list_of_files = glob.glob(self.resources_folder_path + '*.json') #Get list of files 
                     resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
                 except Exception as er:
                     self.get_logger().error(er)
@@ -318,7 +318,7 @@ class OT2Client(Node):
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resource_folder_path) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resources_folder_path) #TODO: Pass in resource path 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
