@@ -70,7 +70,7 @@ class OT2Client(Node):
         self.timer_period = 1  # seconds
 
         # Publisher for ot2 state
-        self.statePub = self.create_publisher(String, self.node_name + "/ot2_state", 10)
+        self.statePub = self.create_publisher(String, self.node_name + "/state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
