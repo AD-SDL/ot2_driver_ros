@@ -53,8 +53,9 @@ class OT2Client(Node):
 
         self.resources_folder_path = '/home/rpl/.ot2_temp/' + self.node_name + "/" + "resources/"  
         self.protocols_folder_path = '/home/rpl/.ot2_temp/' + self.node_name + "/" + "protocols/"  
-
+        
         self.check_resources_folder()
+        self.check_protocols_folder()
         self.connect_robot()
 
         self.description = {
@@ -106,6 +107,17 @@ class OT2Client(Node):
             os.makedirs(self.resources_folder_path)
             self.get_logger().warn("Resource path doesn't exists")
             self.get_logger().info("Creating: " + self.resources_folder_path)
+            
+    def check_protocols_folder(self):
+        """
+        Description: Checks if the protocols folder path exists. Creates the resource folder path if it doesn't already exists
+        """
+
+        isPathExist = os.path.exists(self.protocols_folder_path)
+        if not isPathExist:
+            os.makedirs(self.protocols_folder_path)
+            self.get_logger().warn("Resource path doesn't exists")
+            self.get_logger().info("Creating: " + self.protocols_folder_path)
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
