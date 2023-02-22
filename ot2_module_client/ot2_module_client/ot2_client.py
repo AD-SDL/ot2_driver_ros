@@ -342,7 +342,7 @@ class OT2Client(Node):
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resources_folder_path) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resources_folder_path, protocol_out_path = self.protocols_folder_path) 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
