@@ -70,7 +70,7 @@ class OT2Client(Node):
         self.timer_period = 1  # seconds
 
         # Publisher for ot2 state
-        self.statePub = self.create_publisher(String, self.node_name + "/ot2_state", 10)
+        self.statePub = self.create_publisher(String, self.node_name + "/state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
@@ -197,13 +197,13 @@ class OT2Client(Node):
 
             if resource_file_flag:
                 try:
-                    #TODO: OT2 Driver saves the resource files in the directory where the code was executed. Resource files need to be stored in a spesific directory.
-                    list_of_files = glob.glob(self.resources_folder_path + '*.json') #Get list of files 
-                    resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
+                    list_of_files = glob.glob(self.resources_folder_path + '*.json') #Get list of files
+                    if len(list_of_files) > 0: 
+                        resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
+                        self.get_logger().info("Using the resource file: " + resource_config)
+
                 except Exception as er:
                     self.get_logger().error(er)
-                else:
-                    self.get_logger().info("Using the resource file: " + resource_config)
 
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
