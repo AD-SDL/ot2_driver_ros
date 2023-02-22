@@ -116,7 +116,7 @@ class OT2Client(Node):
         isPathExist = os.path.exists(self.protocols_folder_path)
         if not isPathExist:
             os.makedirs(self.protocols_folder_path)
-            self.get_logger().warn("Resource path doesn't exists")
+            self.get_logger().warn("Protocols path doesn't exists")
             self.get_logger().info("Creating: " + self.protocols_folder_path)
 
     def stateCallback(self):
@@ -210,7 +210,6 @@ class OT2Client(Node):
             protocol_config = self.action_vars.get("config_path", None)
             resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
             resource_file_flag = self.action_vars.get("use_existing_resources", "False") #Returns True to use a resource file or False to not use a resource file. 
-            self.get_logger().warn(str(resource_file_flag))
 
             if resource_file_flag:
                 try:
