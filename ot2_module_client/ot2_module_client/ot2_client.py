@@ -51,7 +51,9 @@ class OT2Client(Node):
         self.past_robot_status = ""
         self.state_refresher_timer = 0
 
-        self.resources_folder_path = '/home/rpl/.ot2_temp/resources/' + self.node_name + '/'
+        self.resources_folder_path = '/home/rpl/.ot2_temp/' + self.node_name + "/" + "resources/"  
+        self.protocols_folder_path = '/home/rpl/.ot2_temp/' + self.node_name + "/" + "protocols/"  
+
         self.check_resources_folder()
         self.connect_robot()
 
