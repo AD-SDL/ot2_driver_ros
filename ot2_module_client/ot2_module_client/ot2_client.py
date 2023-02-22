@@ -210,6 +210,7 @@ class OT2Client(Node):
             protocol_config = self.action_vars.get("config_path", None)
             resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
             resource_file_flag = self.action_vars.get("use_existing_resources", "False") #Returns True to use a resource file or False to not use a resource file. 
+            
             if resource_file_flag:
                 try:
                     list_of_files = glob.glob(self.resources_folder_path + '*.json') #Get list of files
@@ -219,7 +220,6 @@ class OT2Client(Node):
 
                 except Exception as er:
                     self.get_logger().error(er)
-
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
                 payload = deepcopy(self.action_vars)
@@ -298,8 +298,12 @@ class OT2Client(Node):
             Absolute path to generated yaml file
         """
 
-        config_dir_path = Path.home().resolve() / ".ot2_temp"
+        config_dir_path = Path.home().resolve() / self.protocols_folder_path
         config_dir_path.mkdir(exist_ok=True, parents=True)
+        
+        resource_dir_path = Path.home().resolve() / self.resources_folder_path
+        resource_dir_path.mkdir(exist_ok=True, parents=True)
+        
         time_str = datetime.now().strftime('%Y%m%d-%H%m%s')
         config_file_path = (
             config_dir_path
@@ -313,14 +317,14 @@ class OT2Client(Node):
         with open(config_file_path, "w", encoding="utf-8") as pc_file:
             yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
         if resource_config:
-            resource_file_path = config_dir_path / f"resource-{self.node_name}-{time_str}.json"
+            resource_file_path = resource_dir_path / f"resource-{self.node_name}-{time_str}.json"
             with open(resource_config) as resource_content:
                 content = json.load(resource_content)
             json.dump(content, resource_file_path.open("w"))
             return config_file_path, resource_file_path
         else:
             return config_file_path, None
-
+        
     def execute(self, protocol_path, payload=None, resource_config = None):
         """
         Compiles the yaml at protocol_path into .py file;
