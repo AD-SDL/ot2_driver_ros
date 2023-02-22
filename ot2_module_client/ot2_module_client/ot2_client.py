@@ -103,7 +103,7 @@ class OT2Client(Node):
         if not isPathExist:
             os.makedirs(self.resources_folder_path)
             self.get_logger().warn("Resource path doesn't exists")
-            self.get_logger().info("Creating: " + self.resource_file_path)
+            self.get_logger().info("Creating: " + self.resources_folder_path)
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
