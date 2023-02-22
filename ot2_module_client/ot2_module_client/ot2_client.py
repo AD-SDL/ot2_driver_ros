@@ -52,7 +52,7 @@ class OT2Client(Node):
         self.state_refresher_timer = 0
 
         self.resources_folder_path = '/home/rpl/.ot2_temp/resources/' + self.node_name + '/'
-
+        self.check_resources_folder()
         self.connect_robot()
 
         self.description = {
@@ -93,6 +93,15 @@ class OT2Client(Node):
 
         else:
             self.get_logger().info(str(self.node_name) + " online")
+
+    def check_resources_folder(self):
+        """
+        Description: Checks if the resources folder path exists. Creates the resource folder path if it doesn't already exists
+        """
+
+        isPathExist = os.path.exists(self.resources_folder_path)
+        if not isPathExist:
+            os.makedirs(self.resources_folder_path)
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
