@@ -339,7 +339,7 @@ class OT2Client(Node):
             self.get_logger().info("OT2 " + self.node_name + " protocol transfer successful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
-            self.get_logger().warn(str(resp))
+            # self.get_logger().warn(str(resp))
 
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
