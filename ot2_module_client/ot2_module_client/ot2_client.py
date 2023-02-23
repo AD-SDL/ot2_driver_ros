@@ -51,9 +51,11 @@ class OT2Client(Node):
         self.past_robot_status = ""
         self.state_refresher_timer = 0
 
-        self.resources_folder_path = '/home/rpl/.ot2_temp/resources/' + self.node_name + '/'
-        self.protocol_folder_path = '/home/rpl/.ot2_temp/protocols/' + self.node_name + '/'
-
+        self.resources_folder_path = '/home/rpl/.ot2_temp/' + self.node_name + "/" + "resources/"  
+        self.protocols_folder_path = '/home/rpl/.ot2_temp/' + self.node_name + "/" + "protocols/"  
+        
+        self.check_resources_folder()
+        self.check_protocols_folder()
         self.connect_robot()
 
         self.description = {
@@ -71,7 +73,7 @@ class OT2Client(Node):
         self.timer_period = 1  # seconds
 
         # Publisher for ot2 state
-        self.statePub = self.create_publisher(String, self.node_name + "/ot2_state", 10)
+        self.statePub = self.create_publisher(String, self.node_name + "/state", 10)
 
         # Timer callback publishes state to namespaced ot2_state
         self.stateTimer = self.create_timer(self.timer_period, self.stateCallback, callback_group = state_cb_group)
@@ -94,6 +96,28 @@ class OT2Client(Node):
 
         else:
             self.get_logger().info(str(self.node_name) + " online")
+
+    def check_resources_folder(self):
+        """
+        Description: Checks if the resources folder path exists. Creates the resource folder path if it doesn't already exists
+        """
+
+        isPathExist = os.path.exists(self.resources_folder_path)
+        if not isPathExist:
+            os.makedirs(self.resources_folder_path)
+            self.get_logger().warn("Resource path doesn't exists")
+            self.get_logger().info("Creating: " + self.resources_folder_path)
+            
+    def check_protocols_folder(self):
+        """
+        Description: Checks if the protocols folder path exists. Creates the resource folder path if it doesn't already exists
+        """
+
+        isPathExist = os.path.exists(self.protocols_folder_path)
+        if not isPathExist:
+            os.makedirs(self.protocols_folder_path)
+            self.get_logger().warn("Protocols path doesn't exists")
+            self.get_logger().info("Creating: " + self.protocols_folder_path)
 
     def stateCallback(self):
         """The state of the robot, can be ready, completed, busy, error"""
@@ -186,17 +210,16 @@ class OT2Client(Node):
             protocol_config = self.action_vars.get("config_path", None)
             resource_config = self.action_vars.get("resource_path", None) #TODO: This will be enbaled in the future 
             resource_file_flag = self.action_vars.get("use_existing_resources", "False") #Returns True to use a resource file or False to not use a resource file. 
-
+            
             if resource_file_flag:
                 try:
-                    #TODO: OT2 Driver saves the resource files in the directory where the code was executed. Resource files need to be stored in a spesific directory.
-                    list_of_files = glob.glob(self.resources_folder_path + '*.json') #Get list of files 
-                    resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
+                    list_of_files = glob.glob(self.resources_folder_path + '*.json') #Get list of files
+                    if len(list_of_files) > 0: 
+                        resource_config = max(list_of_files, key=os.path.getctime) #Finding the latest added file
+                        self.get_logger().info("Using the resource file: " + resource_config)
+
                 except Exception as er:
                     self.get_logger().error(er)
-                else:
-                    self.get_logger().info("Using the resource file: " + resource_config)
-
             if protocol_config:
                 config_file_path, resource_config_path = self.download_config_files(protocol_config, resource_config)
                 payload = deepcopy(self.action_vars)
@@ -275,8 +298,12 @@ class OT2Client(Node):
             Absolute path to generated yaml file
         """
 
-        config_dir_path = Path.home().resolve() / ".ot2_temp"
+        config_dir_path = Path.home().resolve() / self.protocols_folder_path
         config_dir_path.mkdir(exist_ok=True, parents=True)
+        
+        resource_dir_path = Path.home().resolve() / self.resources_folder_path
+        resource_dir_path.mkdir(exist_ok=True, parents=True)
+        
         time_str = datetime.now().strftime('%Y%m%d-%H%m%s')
         config_file_path = (
             config_dir_path
@@ -290,14 +317,14 @@ class OT2Client(Node):
         with open(config_file_path, "w", encoding="utf-8") as pc_file:
             yaml.dump(protocol_config, pc_file, indent=4, sort_keys=False)
         if resource_config:
-            resource_file_path = config_dir_path / f"resource-{self.node_name}-{time_str}.json"
+            resource_file_path = resource_dir_path / f"resource-{self.node_name}-{time_str}.json"
             with open(resource_config) as resource_content:
                 content = json.load(resource_content)
             json.dump(content, resource_file_path.open("w"))
             return config_file_path, resource_file_path
         else:
             return config_file_path, None
-
+        
     def execute(self, protocol_path, payload=None, resource_config = None):
         """
         Compiles the yaml at protocol_path into .py file;
@@ -319,14 +346,14 @@ class OT2Client(Node):
             (
                 self.protocol_file_path,
                 self.resource_file_path,
-            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resources_folder_path, protocol_out_path = self.protocol_folder_path) #TODO: Pass in resource path 
+            ) = self.ot2.compile_protocol(protocol_path, payload=payload, resource_file = resource_config, resource_path = self.resources_folder_path, protocol_out_path = self.protocols_folder_path) 
             protocol_file_path = Path(self.protocol_file_path)
             self.get_logger().info(f"{protocol_file_path.resolve()=}")
             self.protocol_id, self.run_id = self.ot2.transfer(self.protocol_file_path)
             self.get_logger().info("OT2 " + self.node_name + " protocol transfer successful")
             resp = self.ot2.execute(self.run_id)
             self.get_logger().info("OT2 "+ self.node_name +" executed a protocol")
-            self.get_logger().warn(str(resp))
+            # self.get_logger().warn(str(resp))
 
             if resp["data"]["status"] == "succeeded":
                 # self.poll_OT2_until_run_completion()
