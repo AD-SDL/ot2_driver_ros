@@ -22,7 +22,10 @@ from std_msgs.msg import String
 from ot2_driver.ot2_driver_http import OT2_Config, OT2_Driver
 import opentrons.simulate
 from opentrons.simulate import format_runlog
-
+from urllib.error import HTTPError, URLError
+from urllib3.exceptions import ConnectionError, ConnectTimeoutError
+from urllib3.connection import HTTPException, HTTPConnection
+import requests
 
 
 
@@ -90,9 +93,22 @@ class OT2Client(Node):
         try:
             self.ot2 = OT2_Driver(OT2_Config(ip = self.ip))
 
-        except Exception as error_msg:
+        except ConnectTimeoutError as connection_err:
             self.state = "OT2 CONNECTION ERROR"
-            self.get_logger().error("------- OT2 " + str(self.node_name) + " Error message: " + str(error_msg) +  " -------")
+            self.get_logger().error("Connection error code: " + connection_err)
+
+        except HTTPError as http_error:
+            self.get_logger().error("HTTP error code: " +  http_error)
+            
+        except URLError as url_err:
+            self.get_logger().error("Url error code: " +  url_err)
+
+        except requests.exceptions.ConnectionError as conn_err: 
+            self.get_logger().error("Connection error code: "+ str(conn_err))
+            
+        except Exception as error_msg:
+            self.state = "OT2 ERROR"
+            self.get_logger().error("-------" + str(error_msg) +  " -------")
 
         else:
             self.get_logger().info(str(self.node_name) + " online")
@@ -125,9 +141,20 @@ class OT2Client(Node):
             self.robot_status = self.ot2.get_robot_status().upper()
             # self.get_logger().info(str(self.robot_status))
      
-        except Exception as err:
-            self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+        except HTTPError as http_error:
+            self.get_logger().err("HTTP error code: ", http_error)
             self.state = "OT2 CONNECTION ERROR"
+            
+        except URLError as url_err:
+            self.get_logger().err("Url error code: ", url_err)
+
+        except Exception as error_msg:
+            self.state = "ERROR"
+            self.get_logger().error("-------" + str(error_msg) +  " -------")
+
+        # except Exception as err:
+        #     self.get_logger().error("ROBOT IS NOT RESPONDING! ERROR: " + str(err))
+        #     self.state = "OT2 CONNECTION ERROR"
 
         if self.state != "OT2 CONNECTION ERROR":
             msg = String()
@@ -159,6 +186,13 @@ class OT2Client(Node):
                 msg.data = 'State: %s' % self.state
                 self.statePub.publish(msg)
                 self.get_logger().info(msg.data)
+            elif self.robot_status == "OFFLINE":
+                self.state = "ROBOT OFFLINE"
+                msg.data = 'State: %s' % self.state
+                self.statePub.publish(msg)
+                self.get_logger().warn(msg.data)
+                self.get_logger().warn("Trying to connect again! IP: " + self.ip)
+                self.connect_robot()
             else:
                 self.state = "UNKOWN"
                 msg.data = 'State: %s' % self.state
@@ -169,8 +203,8 @@ class OT2Client(Node):
             msg.data = 'State: %s' % self.state
             self.statePub.publish(msg)
             self.get_logger().error(msg.data)
-            self.get_logger().warn("Trying to connect again! IP: " + self.ip)
-            self.connect_robot()
+            # self.get_logger().warn("Trying to connect again! IP: " + self.ip)
+            # self.connect_robot()
 
     def actionCallback(self, request, response):
 
