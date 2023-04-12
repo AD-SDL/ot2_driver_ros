@@ -42,10 +42,10 @@ class OT2Client(Node):
         super().__init__(TEMP_NODE_NAME)
         self.node_name = self.get_name()
 
-        self.declare_parameter("ip","127.0.0.1")
+        self.declare_parameter("device_name","device1")
 
         # Receiving the real IP and PORT from the launch parameters
-        self.ip =  self.get_parameter("ip").get_parameter_value().string_value
+        self.device_name =  self.get_parameter("device_name").get_parameter_value().string_value
 
         self.get_logger().info("Received IP: " + self.ip + " Robot name: " + str(self.node_name))
         self.state = "UNKNOWN"
