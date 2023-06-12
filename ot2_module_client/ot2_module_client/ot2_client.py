@@ -48,6 +48,7 @@ class OT2Client(Node):
         self.ip =  self.get_parameter("ip").get_parameter_value().string_value
 
         self.get_logger().info("Received IP: " + self.ip + " Robot name: " + str(self.node_name))
+        
         self.state = "UNKNOWN"
         self.action_flag = "READY"
         self.robot_status = ""
