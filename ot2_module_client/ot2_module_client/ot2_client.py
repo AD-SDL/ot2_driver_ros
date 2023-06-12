@@ -234,7 +234,7 @@ class OT2Client(Node):
         self.action_flag = "BUSY"    
 
         self.action_command = request.action_handle
-        self.action_vars = eval(request.vars)
+        self.action_vars = json.loads(request.vars)
         self.get_logger().info(f"{self.action_vars=}")
 
         self.get_logger().info(f"In action callback, command: {self.action_command}")
