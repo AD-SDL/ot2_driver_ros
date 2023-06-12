@@ -269,15 +269,15 @@ class OT2Client(Node):
                     self.state = "COMPLETED"
                     response.action_response = 0
                     response.action_msg = response_msg
-                    if resource_config_path:
-                        response.resources = str(resource_config_path)
+#                    if resource_config_path:
+#                        response.resources = str(resource_config_path)
 
                 elif response_flag == False:
                     self.state = "ERROR"
                     response.action_response = -1
                     response.action_msg = response_msg
-                    if resource_config_path:
-                        response.resources = str(resource_config_path)
+#                    if resource_config_path:
+#                        response.resources = str(resource_config_path)
 
                 self.get_logger().info("Finished Action: " + request.action_handle)
                 return response
