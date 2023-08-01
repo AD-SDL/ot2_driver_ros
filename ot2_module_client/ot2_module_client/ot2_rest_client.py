@@ -57,6 +57,7 @@ resources_folder_path = ""
 protocols_folder_path = ""
 node_name = ""
 resource_file_path = ""
+ip = ""
 
 def check_protocols_folder():
         """
@@ -83,8 +84,7 @@ def check_resources_folder():
             print("Creating: " + protocols_folder_path)
 
 def connect_robot():
-        global ot2, state, node_name
-        ip = "127.0.0.1"
+        global ot2, state, node_name, ip
         try:
             ot2 = OT2_Driver(OT2_Config(ip = ip))
 
@@ -234,7 +234,7 @@ def poll_OT2_until_run_completion():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-        global ot2, state, node_name, resources_folder_path, protocols_folder_path
+        global ot2, state, node_name, resources_folder_path, protocols_folder_path, ip
         """Initial run function for the app, parses the worcell argument
             Parameters
             ----------
@@ -245,16 +245,18 @@ async def lifespan(app: FastAPI):
             -------
             None"""
         parser = ArgumentParser()
-        parser.add_argument("--node_name", type=str, help="Path to workcell file")
+        parser.add_argument("--node_name", type=str, help="Name of the Node")
+        parser.add_argument("--ip", type=str, help="ip value")
         args = parser.parse_args()
         node_name = args.node_name
+        ip = args.ip
         state = "UNKNOWN"   
         resources_folder_path = '/home/rpl/.ot2_temp/' + node_name + "/" + "resources/"  
         protocols_folder_path = '/home/rpl/.ot2_temp/' + node_name + "/" + "protocols/"  
         check_resources_folder()
         check_protocols_folder()
         connect_robot()
-
+     
         description = {
             "name": node_name,
             "type": "",
