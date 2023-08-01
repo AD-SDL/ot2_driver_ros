@@ -292,9 +292,8 @@ def do_action(
     action_handle: str,
     action_vars
 ):  
-        response={"action_response": "", "action_msg": "", "action_log": ""}
         global ot2, state
-        response = {}
+        response={"action_response": "", "action_msg": "", "action_log": ""}
         if state == "ERROR":
                 msg = "Can not accept the job! OT2 CONNECTION ERROR"
                # get_logger.error(msg)
