@@ -256,7 +256,7 @@ async def lifespan(app: FastAPI):
         check_resources_folder()
         check_protocols_folder()
         connect_robot()
-     
+        state = "IDLE"
         description = {
             "name": node_name,
             "type": "",
@@ -290,7 +290,7 @@ async def resources():
 @app.post("/action")
 async def do_action(
     action_handle: str,
-    action_vars: dict, 
+    action_vars
 ):  
         global ot2, state
         response = {}
@@ -376,4 +376,4 @@ async def do_action(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("ot2_rest_client:app", host="localhost", port=2001, reload=False, ws_max_size=100000000000000000000000000000000000000)
+    uvicorn.run("ot2_rest_client:app", host="parker.cels.anl.gov", port=2001, reload=False, ws_max_size=100000000000000000000000000000000000000)
