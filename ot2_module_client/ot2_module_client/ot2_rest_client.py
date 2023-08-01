@@ -11,10 +11,6 @@ from datetime import datetime
 from copy import deepcopy
 import time
 
-import rclpy
-from rclpy.node import Node
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
-from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 
 from wei_services.srv import WeiActions, WeiDescription
 from std_msgs.msg import String
@@ -35,8 +31,6 @@ import requests
 from time import sleep
 import threading
 import asyncio
-
-from platecrane_driver.sciclops_driver import SCICLOPS # import sciclops driver
 
 from time import sleep
 import json
@@ -71,7 +65,7 @@ def check_resources_folder(self):
         isPathExist = os.path.exists(resources_folder_path)
         if not isPathExist:
             os.makedirs(resources_folder_path)
-            get_logger().warn("Resource path doesn't exists")
+            #get_logger().warn("Resource path doesn't exists")
             print("Creating: " + resources_folder_path)
             
 def check_protocols_folder(self):
@@ -86,7 +80,7 @@ def check_protocols_folder(self):
             print("Creating: " + protocols_folder_path)
 
 def connect_robot(self):
-        global ot2, state
+        global ot2, state, node_name
         ip = "127.0.0.1"
         try:
             ot2 = OT2_Driver(OT2_Config(ip = ip))
@@ -124,7 +118,7 @@ def download_config_files(self, protocol_config: str, resource_config = None):
     config_file_path: str
         Absolute path to generated yaml file
     """
-
+    global node_name
     config_dir_path = Path.home().resolve() / protocols_folder_path
     config_dir_path.mkdir(exist_ok=True, parents=True)
     
@@ -168,7 +162,7 @@ def execute(self, protocol_path, payload=None, resource_config = None):
         If the ot2 execution was successful
     """
 
-    global run_id
+    global run_id, node_name
     try:
         (
             protocol_file_path,
@@ -237,7 +231,7 @@ def poll_OT2_until_run_completion(self):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-        global ot2, state
+        global ot2, state, node_name
         """Initial run function for the app, parses the worcell argument
             Parameters
             ----------
@@ -247,11 +241,13 @@ async def lifespan(app: FastAPI):
             Returns
             -------
             None"""
-
-        state = "UNKNOWN"
+        parser = ArgumentParser()
+        parser.add_argument("--node_name", type=str, help="Path to workcell file")
+        args = parser.parse_args()
+        node_name = args.node_name
+        state = "UNKNOWN"   
         resources_folder_path = '/home/rpl/.ot2_temp/' + node_name + "/" + "resources/"  
         protocols_folder_path = '/home/rpl/.ot2_temp/' + node_name + "/" + "protocols/"  
-        
         check_resources_folder()
         check_protocols_folder()
         connect_robot()
