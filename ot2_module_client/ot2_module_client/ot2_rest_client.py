@@ -57,7 +57,7 @@ resources_folder_path = ""
 protocols_folder_path = ""
 node_name = ""
 
-def check_resources_folder(self):
+def check_resources_folder():
         """
         Description: Checks if the resources folder path exists. Creates the resource folder path if it doesn't alIDLE exists
         """
@@ -68,7 +68,7 @@ def check_resources_folder(self):
             #get_logger().warn("Resource path doesn't exists")
             print("Creating: " + resources_folder_path)
             
-def check_protocols_folder(self):
+def check_protocols_folder():
         """
         Description: Checks if the protocols folder path exists. Creates the resource folder path if it doesn't alIDLE exists
         """
@@ -79,7 +79,7 @@ def check_protocols_folder(self):
            # get_logger().warn("Protocols path doesn't exists")
             print("Creating: " + protocols_folder_path)
 
-def connect_robot(self):
+def connect_robot():
         global ot2, state, node_name
         ip = "127.0.0.1"
         try:
@@ -104,7 +104,7 @@ def connect_robot(self):
 
         else:
             print(str(node_name) + " online")
-def download_config_files(self, protocol_config: str, resource_config = None):
+def download_config_files( protocol_config: str, resource_config = None):
     """
     Saves protocol_config string to a local yaml file locaton
 
@@ -146,7 +146,7 @@ def download_config_files(self, protocol_config: str, resource_config = None):
     else:
         return config_file_path, None
     
-def execute(self, protocol_path, payload=None, resource_config = None):
+def execute(protocol_path, payload=None, resource_config = None):
     """
     Compiles the yaml at protocol_path into .py file;
     Transfers and Exececutes the .py file
@@ -208,7 +208,7 @@ def execute(self, protocol_path, payload=None, resource_config = None):
         # rclpy.shutdown()  ## TODO: Could alternatively indent into the if block.
         ## TODO: Changed to as is to forestall any unexpected exceptions
 
-def poll_OT2_until_run_completion(self):
+def poll_OT2_until_run_completion():
     """Queries the OT2 run state until reported as 'succeeded'"""
     global run_id
     print("Polling OT2 run until completion")
@@ -260,6 +260,8 @@ async def lifespan(app: FastAPI):
                 "run_protocol": "config_path: %s",  ## Temp inclusion
             },
         }
+        yield
+        pass
 
 
 app = FastAPI(lifespan=lifespan, )
