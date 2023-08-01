@@ -56,6 +56,17 @@ global ot2
 resources_folder_path = ""
 protocols_folder_path = ""
 node_name = ""
+resource_file_path = ""
+
+def check_protocols_folder():
+        """
+        Description: Checks if the protocols folder path exists. Creates the resource folder path if it doesn't already exists
+        """
+        global protocols_folder_path
+        isPathExist = os.path.exists(protocols_folder_path)
+        if not isPathExist:
+            os.makedirs(protocols_folder_path)
+           
 
 def check_resources_folder():
         """
@@ -65,15 +76,7 @@ def check_resources_folder():
         isPathExist = os.path.exists(resources_folder_path)
         if not isPathExist:
             os.makedirs(resources_folder_path)
-            #get_logger().warn("Resource path doesn't exists")
-            print("Creating: " + resources_folder_path)
-            
-def check_protocols_folder():
-        """
-        Description: Checks if the protocols folder path exists. Creates the resource folder path if it doesn't alIDLE exists
-        """
-        global protocols_folder_path
-        isPathExist = os.path.exists(protocols_folder_path)
+            #get_lresource_file_pathth.exists(protocols_folder_path)
         if not isPathExist:
             os.makedirs(protocols_folder_path)
            # get_logger().warn("Protocols path doesn't exists")
@@ -118,7 +121,7 @@ def download_config_files( protocol_config: str, resource_config = None):
     config_file_path: str
         Absolute path to generated yaml file
     """
-    global node_name
+    global node_name, resource_file_path
     config_dir_path = Path.home().resolve() / protocols_folder_path
     config_dir_path.mkdir(exist_ok=True, parents=True)
     
@@ -162,7 +165,7 @@ def execute(protocol_path, payload=None, resource_config = None):
         If the ot2 execution was successful
     """
 
-    global run_id, node_name
+    global run_id, node_name, protocols_folder_path, resources_folder_path, resource_file_path
     try:
         (
             protocol_file_path,
@@ -231,7 +234,7 @@ def poll_OT2_until_run_completion():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-        global ot2, state, node_name
+        global ot2, state, node_name, resources_folder_path, protocols_folder_path
         """Initial run function for the app, parses the worcell argument
             Parameters
             ----------
