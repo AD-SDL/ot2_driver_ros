@@ -272,7 +272,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan, )
 
 @app.get("/state")
-async def get_state():
+def get_state():
     global sealer
     return JSONResponse(content={"State":state})
 
@@ -288,10 +288,11 @@ async def resources():
 
 
 @app.post("/action")
-async def do_action(
+def do_action(
     action_handle: str,
     action_vars
 ):  
+        response={"action_response": "", "action_msg": "", "action_log": ""}
         global ot2, state
         response = {}
         if state == "ERROR":
