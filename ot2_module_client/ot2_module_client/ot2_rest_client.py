@@ -369,5 +369,4 @@ async def do_action(
 
 if __name__ == "__main__":
     import uvicorn
-    print("asdfsaf")
-    uvicorn.run("a4s_sealer_REST:app", host=local_ip, port=local_port, reload=True, ws_max_size=100000000000000000000000000000000000000)
+    uvicorn.run("ot2_rest_client:app", host="localhost", port=2001, reload=False, ws_max_size=100000000000000000000000000000000000000)
