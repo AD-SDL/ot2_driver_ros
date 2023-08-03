@@ -165,7 +165,7 @@ def execute(protocol_path, payload=None, resource_config = None):
         If the ot2 execution was successful
     """
 
-    global run_id, node_name, protocols_folder_path, resources_folder_path, resource_file_path
+    global run_id, node_name, protocols_folder_path, resources_folder_path
     try:
         (
             protocol_file_path,
@@ -283,8 +283,12 @@ async def description():
 
 @app.get("/resources")
 async def resources():
-    global sealer
-    return JSONResponse(content={"State": sealer.get_status() })
+    global resource_file_path
+    resource_info = ""
+    if not(resource_file_path == ""):
+     with open(resource_file_path) as f:
+      resource_info = f.read()
+    return JSONResponse(content={"State": resource_info})
 
 
 @app.post("/action")
@@ -341,15 +345,15 @@ def do_action(
                     state = "IDLE"
                     response["action_response"] = 0
                     response["action_msg"] = response_msg
-                    if resource_config_path:
-                        response.resources = str(resource_config_path)
+                    #if resource_config_path:
+                     #   response.resources = str(resource_config_path)
 
                 elif response_flag == False:
                     state = "ERROR"
                     response["action_response"] = -1
                     response["action_msg"] = response_msg
-                    if resource_config_path:
-                        response.resources = str(resource_config_path)
+                    #if resource_config_path:
+                     #   response.resources = str(resource_config_path)
 
                 print("Finished Action: " + action_handle)
                 return response
