@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'ot2_module_client'
+package_name = 'ot2_ros_client'
 
 setup(
     name=package_name,
@@ -23,7 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ot2_client = ot2_module_client.ot2_client:main',
+            'ot2_client = ot2_ros_client.ot2_client:main',
         ],
     },
 )

@@ -26,7 +26,7 @@ def generate_launch_description():
         description='Flag to accept robot_name')
 
     ot2 = Node(
-        package='ot2_module_client',
+        package='ot2_ros_client',
         executable='ot2_client',
         namespace = 'std_ns',
         name=robot_name,
